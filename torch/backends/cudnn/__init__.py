@@ -422,7 +422,7 @@ def add_tensor(*args):
 
 # The magic here is to allow us to intercept code like this:
 #
-#   torch.backends.<cudnn|mkldnn>.enabled = True
+#   torch.backends.<cudnn|dnnl>.enabled = True
 
 class CudnnModule(PropModule):
     def __init__(self, m, name):

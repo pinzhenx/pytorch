@@ -100,8 +100,8 @@ class CAFFE2_API Context {
   // to test this instead
   bool userEnabledCuDNN() const;
   void setUserEnabledCuDNN(bool e);
-  bool userEnabledMkldnn() const;
-  void setUserEnabledMkldnn(bool e);
+  bool userEnabledDnnl() const;
+  void setUserEnabledDnnl(bool e);
   bool benchmarkCuDNN() const;
   void setBenchmarkCuDNN(bool);
   bool deterministicCuDNN() const;
@@ -126,7 +126,7 @@ class CAFFE2_API Context {
   bool enabled_cudnn = true;
   bool deterministic_cudnn = false;
   bool benchmark_cudnn = false;
-  bool enabled_mkldnn = true;
+  bool enabled_dnnl = true;
   c10::optional<at::QEngine> quantized_engine = c10::nullopt;
   std::unique_ptr<THCState, void(*)(THCState*)> thc_state;
   std::unique_ptr<THHState, void(*)(THHState*)> thh_state;
