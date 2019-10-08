@@ -2,8 +2,6 @@
 #include <torch/csrc/utils/init.h>
 #include <torch/csrc/utils/throughput_benchmark.h>
 
-#include <ATen/native/Convolution.h>
-
 #include <pybind11/functional.h>
 
 namespace torch {
@@ -48,12 +46,6 @@ void initThroughputBenchmarkBindings(PyObject* module) {
       });
 
 
-  m.def("_enable_dnnl_conv", []() {
-    at::native::disable_dnnl_conv.exchange(false);
-  });
-  m.def("_disable_dnnl_conv", []() {
-    at::native::disable_dnnl_conv.exchange(true);
-  });
 }
 
 } // namespace throughput_benchmark

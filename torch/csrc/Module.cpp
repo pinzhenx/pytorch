@@ -417,6 +417,20 @@ PyObject *THPModule_userEnabledCuDNN(PyObject *_unused)
   else Py_RETURN_FALSE;
 }
 
+PyObject *THPModule_setUserEnabledDnnl(PyObject *_unused, PyObject *arg)
+{
+  THPUtils_assert(PyBool_Check(arg), "set_enabled_dnnl expects a bool, "
+          "but got %s", THPUtils_typename(arg));
+  at::globalContext().setUserEnabledDnnl(arg == Py_True);
+  Py_RETURN_NONE;
+}
+
+ PyObject *THPModule_userEnabledDnnl(PyObject *_unused)
+{
+  if (at::globalContext().userEnabledDnnl()) Py_RETURN_TRUE;
+  else Py_RETURN_FALSE;
+}
+
 PyObject *THPModule_setDeterministicCuDNN(PyObject *_unused, PyObject *arg)
 {
   THPUtils_assert(PyBool_Check(arg), "set_deterministic_cudnn expects a bool, "
@@ -498,6 +512,8 @@ static PyMethodDef TorchMethods[] = {
   {"_set_cudnn_enabled", (PyCFunction)THPModule_setUserEnabledCuDNN, METH_O,  nullptr},
   {"_get_cudnn_benchmark", (PyCFunction)THPModule_benchmarkCuDNN, METH_NOARGS,     nullptr},
   {"_set_cudnn_benchmark", (PyCFunction)THPModule_setBenchmarkCuDNN, METH_O,  nullptr},
+  {"_get_dnnl_enabled", (PyCFunction)THPModule_userEnabledDnnl, METH_NOARGS,     nullptr},
+  {"_set_dnnl_enabled", (PyCFunction)THPModule_setUserEnabledDnnl, METH_O,  nullptr},
   {"_get_cudnn_deterministic", (PyCFunction)THPModule_deterministicCuDNN, METH_NOARGS,     nullptr},
   {"_set_cudnn_deterministic", (PyCFunction)THPModule_setDeterministicCuDNN, METH_O,  nullptr},
   {"_to_dlpack",      (PyCFunction)THPModule_toDLPack,          METH_O,       nullptr},

@@ -1,5 +1,3 @@
-#include "ATen/native/Convolution.h"
-
 #include <ATen/ATen.h>
 #include <ATen/NativeFunctions.h>
 #include <ATen/native/utils/ParamUtils.h>
@@ -12,8 +10,6 @@
 static const int MIOPEN_DIM_MAX = 4;
 
 namespace at { namespace native {
-
-std::atomic<bool> disable_dnnl_conv{false};
 
 struct ConvParams {
   std::vector<int64_t> stride;
@@ -153,7 +149,7 @@ auto ConvParams::use_miopen(const at::Tensor& input) const -> bool {
 
 auto ConvParams::use_dnnl(const at::Tensor& input) const -> bool {
 #if AT_DNNL_ENABLED()
-  if (disable_dnnl_conv.load()) {
+  if (!at::globalContext().userEnabledDnnl()) {
     return false;
   }
   return (input.is_dnnl()) || // input is dnnl Tensor
