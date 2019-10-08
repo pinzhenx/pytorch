@@ -12,8 +12,8 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.mkl_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn,
-                 "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl,
+                 "Skipping as we do not have dnnl.")
 class MKLFcTest(hu.HypothesisTestCase):
     @given(n=st.integers(1, 5), m=st.integers(1, 5),
            k=st.integers(1, 5), **mu.gcs)

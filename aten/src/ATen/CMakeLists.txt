@@ -54,11 +54,11 @@ FILE(GLOB miopen_h "miopen/*.h")
 FILE(GLOB miopen_cpp "miopen/*.cpp")
 
 FILE(GLOB mkl_cpp "mkl/*.cpp")
-FILE(GLOB mkldnn_cpp "mkldnn/*.cpp")
+FILE(GLOB dnnl_cpp "dnnl/*.cpp")
 
 FILE(GLOB native_cpp "native/*.cpp")
 FILE(GLOB native_mkl_cpp "native/mkl/*.cpp")
-FILE(GLOB native_mkldnn_cpp "native/mkldnn/*.cpp")
+FILE(GLOB native_dnnl_cpp "native/dnnl/*.cpp")
 FILE(GLOB native_sparse_cpp "native/sparse/*.cpp")
 FILE(GLOB native_quantized_cpp
             "native/quantized/*.cpp"
@@ -82,12 +82,12 @@ FILE(GLOB native_quantized_hip_hip "native/quantized/hip/*.hip")
 FILE(GLOB native_quantized_hip_cpp "native/quantized/hip/*.cpp")
 
 add_subdirectory(quantized)
-set(all_cpu_cpp ${base_cpp} ${ATen_CORE_SRCS} ${native_cpp} ${native_sparse_cpp} ${native_quantized_cpp} ${native_mkl_cpp} ${native_mkldnn_cpp} ${generated_cpp} ${core_generated_cpp} ${ATen_CPU_SRCS} ${ATen_QUANTIZED_SRCS} ${cpu_kernel_cpp})
+set(all_cpu_cpp ${base_cpp} ${ATen_CORE_SRCS} ${native_cpp} ${native_sparse_cpp} ${native_quantized_cpp} ${native_mkl_cpp} ${native_dnnl_cpp} ${generated_cpp} ${core_generated_cpp} ${ATen_CPU_SRCS} ${ATen_QUANTIZED_SRCS} ${cpu_kernel_cpp})
 if(AT_MKL_ENABLED)
   set(all_cpu_cpp ${all_cpu_cpp} ${mkl_cpp})
 endif()
-if(AT_MKLDNN_ENABLED)
-  set(all_cpu_cpp ${all_cpu_cpp} ${mkldnn_cpp})
+if(AT_DNNL_ENABLED)
+  set(all_cpu_cpp ${all_cpu_cpp} ${dnnl_cpp})
 endif()
 
 if(USE_CUDA AND USE_ROCM)
@@ -214,9 +214,9 @@ if(AT_NNPACK_ENABLED)
   list(APPEND ATen_CPU_DEPENDENCY_LIBS nnpack) # cpuinfo is added below
 endif()
 
-if(MKLDNN_FOUND)
-  list(APPEND ATen_CPU_DEPENDENCY_LIBS ${MKLDNN_LIBRARIES})
-endif(MKLDNN_FOUND)
+if(DNNL_FOUND)
+  list(APPEND ATen_CPU_DEPENDENCY_LIBS ${DNNL_LIBRARIES})
+endif(DNNL_FOUND)
 
 list(APPEND ATen_CPU_DEPENDENCY_LIBS cpuinfo)
 

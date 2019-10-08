@@ -611,11 +611,11 @@ RegisterOperators reg(
          },
          aliasAnalysisFromSchema()),
      Operator(
-         "prim::is_mkldnn(Tensor a) -> bool",
+         "prim::is_dnnl(Tensor a) -> bool",
          [](Stack& stack) {
            at::Tensor a;
            pop(stack, a);
-           push(stack, a.is_mkldnn());
+           push(stack, a.is_dnnl());
            return 0;
          },
          aliasAnalysisFromSchema()),

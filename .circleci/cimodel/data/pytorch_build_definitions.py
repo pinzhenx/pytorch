@@ -24,7 +24,7 @@ class Conf:
     pyver: Optional[str] = None
     cuda_version: Optional[str] = None
     # TODO expand this to cover all the USE_* that we want to test for
-    #  tesnrorrt, leveldb, lmdb, redis, opencv, mkldnn, ideep, etc.
+    #  tesnrorrt, leveldb, lmdb, redis, opencv, dnnl, ideep, etc.
     # (from https://github.com/pytorch/pytorch/pull/17323#discussion_r259453608)
     is_xla: bool = False
     restrict_phases: Optional[List[str]] = None

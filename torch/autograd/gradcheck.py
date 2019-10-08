@@ -94,7 +94,7 @@ def get_numerical_jacobian(fn, input, target=None, eps=1e-3):
                     x_value[x_idx] = orig
                     r = (outb - outa) / (2 * eps)
                     d_tensor[d_idx] = r.detach().reshape(-1)
-        elif x_tensor.layout == torch._mkldnn:
+        elif x_tensor.layout == torch._dnnl:
             if len(input) != 1:
                 raise ValueError('gradcheck currently only supports functions with 1 input, but got: ',
                                  len(input))
@@ -106,11 +106,11 @@ def get_numerical_jacobian(fn, input, target=None, eps=1e-3):
                 orig = x_tensor_dense[x_idx].item()
 
                 x_tensor_dense[x_idx] = orig - eps
-                x_tensor_mkl = x_tensor_dense.to_mkldnn()
+                x_tensor_mkl = x_tensor_dense.to_dnnl()
                 outa = fn([x_tensor_mkl])
 
                 x_tensor_dense[x_idx] = orig + eps
-                x_tensor_mkl = x_tensor_dense.to_mkldnn()
+                x_tensor_mkl = x_tensor_dense.to_dnnl()
                 outb = fn([x_tensor_mkl])
 
                 r = (outb - outa) / (2 * eps)
@@ -136,8 +136,8 @@ def get_analytical_jacobian(input, output, nondet_tol=0.0):
     if output.is_sparse:
         raise ValueError('Sparse output is not supported at gradcheck yet. '
                          'Please call to_dense() on the output of fn for gradcheck.')
-    if output.layout == torch._mkldnn:
-        raise ValueError('MKLDNN output is not supported at gradcheck yet. '
+    if output.layout == torch._dnnl:
+        raise ValueError('DNNL output is not supported at gradcheck yet. '
                          'Please call to_dense() on the output of fn for gradcheck.')
     diff_input_list = list(iter_tensors(input, True))
     jacobian = make_jacobian(input, output.numel())

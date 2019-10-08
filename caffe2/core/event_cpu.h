@@ -10,9 +10,9 @@ struct CPUEventWrapper {
       : status_(EventStatus::EVENT_INITIALIZED) {
     CAFFE_ENFORCE(
         option.device_type() == PROTO_CPU ||
-            option.device_type() == PROTO_MKLDNN ||
+            option.device_type() == PROTO_DNNL ||
             option.device_type() == PROTO_IDEEP,
-        "Expected CPU/MKLDNN/IDEEP device type");
+        "Expected CPU/DNNL/IDEEP device type");
   }
   ~CPUEventWrapper() {}
 

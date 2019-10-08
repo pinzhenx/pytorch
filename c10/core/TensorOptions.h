@@ -400,8 +400,8 @@ struct C10_API TensorOptions {
               return TensorTypeId::ComplexCUDATensorId;
             }
             return TensorTypeId::CUDATensorId;
-          case DeviceType::MKLDNN:
-            return TensorTypeId::MKLDNNTensorId;
+          case DeviceType::DNNL:
+            return TensorTypeId::DNNLTensorId;
           case DeviceType::OPENGL:
             return TensorTypeId::OpenGLTensorId;
           case DeviceType::OPENCL:
@@ -428,12 +428,12 @@ struct C10_API TensorOptions {
           default:
             AT_ERROR("Unsupported device type for sparse layout: ", device().type());
         }
-      case Layout::Mkldnn:
+      case Layout::Dnnl:
         switch (device().type()) {
           case DeviceType::CPU:
-            return TensorTypeId::MkldnnCPUTensorId;
+            return TensorTypeId::DnnlCPUTensorId;
           default:
-            AT_ERROR("Unsupported device type for mkldnn layout: ", device().type());
+            AT_ERROR("Unsupported device type for dnnl layout: ", device().type());
         }
       default:
         AT_ERROR("Unsupported layout: ", layout());
@@ -618,8 +618,8 @@ inline DeviceType computeDeviceType(TensorTypeId tid) {
     return DeviceType::CUDA;
   } else if (tid == TensorTypeId::HIPTensorId) {
     return DeviceType::HIP;
-  } else if (tid == TensorTypeId::MKLDNNTensorId) {
-    return DeviceType::MKLDNN;
+  } else if (tid == TensorTypeId::DNNLTensorId) {
+    return DeviceType::DNNL;
   } else if (tid == TensorTypeId::OpenGLTensorId) {
     return DeviceType::IDEEP;
   } else if (tid == TensorTypeId::OpenCLTensorId) {
@@ -638,7 +638,7 @@ inline DeviceType computeDeviceType(TensorTypeId tid) {
     return DeviceType::CUDA;
   } else if (tid == TensorTypeId::SparseHIPTensorId) {
     return DeviceType::HIP;
-  } else if (tid == TensorTypeId::MkldnnCPUTensorId) {
+  } else if (tid == TensorTypeId::DnnlCPUTensorId) {
     return DeviceType::CPU;
   } else if (tid == TensorTypeId::ComplexCPUTensorId) {
     return DeviceType::CPU;

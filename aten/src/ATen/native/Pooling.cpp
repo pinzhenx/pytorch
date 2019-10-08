@@ -118,8 +118,8 @@ Tensor max_pool2d(
     return at::quantized_max_pool2d(self, kernel_size, stride, padding,
                                     dilation, ceil_mode);
   }
-  if (self.is_mkldnn()) {
-    return at::mkldnn_max_pool2d(
+  if (self.is_dnnl()) {
+    return at::dnnl_max_pool2d(
         self, kernel_size, stride, padding, dilation, ceil_mode);
   }
   auto output_and_indices = at::max_pool2d_with_indices(

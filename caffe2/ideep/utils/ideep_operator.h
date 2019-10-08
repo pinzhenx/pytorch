@@ -120,8 +120,8 @@ class IDEEPOperator : public OperatorBase {
 // Convert zero_point scales to min_max scales
 // NOTE:
 //  The scales in operator is saved in FBGEMM format,
-//  while FBGEMM scales are the reciprocals of MKL-DNN scales.
-//  This function is provided to convert scales from FBGEMM to MKL-DNN
+//  while FBGEMM scales are the reciprocals of DNNL scales.
+//  This function is provided to convert scales from FBGEMM to DNNL
 inline ideep::scale_t ConvertScales(
     const std::vector<float> scales_z) {
   ideep::scale_t scales (scales_z);

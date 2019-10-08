@@ -94,8 +94,8 @@ TEST(DeviceTest, ParsesCorrectlyFromString) {
   device = Device("cuda");
   ASSERT_EQ(device, Device(DeviceType::CUDA));
 
-  device = Device("mkldnn");
-  ASSERT_EQ(device, Device(DeviceType::MKLDNN));
+  device = Device("dnnl");
+  ASSERT_EQ(device, Device(DeviceType::DNNL));
 
   device = Device("opengl");
   ASSERT_EQ(device, Device(DeviceType::OPENGL));

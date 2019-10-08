@@ -18,7 +18,7 @@ class IDEEPNHWC2NCHWOp final : public IDEEPOperator {
     auto *Y = Output(OUTPUT);
     CAFFE_ENFORCE(Y != &X);
 
-    // NOTE: NHWC changes the shape in framework, but not in MKL-DNN
+    // NOTE: NHWC changes the shape in framework, but not in DNNL
     // Thus, for iDEEP tensor, the shapes of NCHW and NHWC are identical.
     Y->init({X.get_dims(), X.get_data_type(), iformat::nchw});
     Y->feed_from(X);
@@ -44,7 +44,7 @@ class IDEEPNCHW2NHWCOp final : public IDEEPOperator {
     auto *Y = Output(OUTPUT);
     CAFFE_ENFORCE(Y != &X);
 
-    // NOTE: NHWC changes the shape in framework, but not in MKL-DNN
+    // NOTE: NHWC changes the shape in framework, but not in DNNL
     // Thus, for iDEEP tensor, the shapes of NCHW and NHWC are identical.
     Y->init({X.get_dims(), X.get_data_type(), iformat::nhwc});
     Y->feed_from(X);

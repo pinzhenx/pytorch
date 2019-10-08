@@ -35,7 +35,7 @@ TESTS = [
     'indexing',
     'jit',
     'logging',
-    'mkldnn',
+    'dnnl',
     'multiprocessing',
     'multiprocessing_spawn',
     'nccl',

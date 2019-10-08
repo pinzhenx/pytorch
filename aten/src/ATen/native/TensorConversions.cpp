@@ -86,14 +86,14 @@ Tensor to_dense_backward(const Tensor& grad, const Tensor& input_) {
   if (input_.layout() == c10::kSparse) {
     auto input = input_.coalesce();
     return grad.sparse_mask(input);
-  } else if (input_.layout() == c10::kMkldnn) {
-    return grad.to_mkldnn();
+  } else if (input_.layout() == c10::kDnnl) {
+    return grad.to_dnnl();
   } else {
     AT_ERROR("Unsupported input layout: ", input_.layout());
   }
 }
 
-Tensor to_mkldnn_backward(const Tensor& grad, const Tensor& input_) {
+Tensor to_dnnl_backward(const Tensor& grad, const Tensor& input_) {
   AT_ASSERT(input_.layout() == c10::kStrided);
   return grad.to_dense();
 }

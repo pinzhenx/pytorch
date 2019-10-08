@@ -121,13 +121,13 @@ inline bool is_sparse(Tensor self) {
   return self.is_sparse();
 }
 
-inline bool Tensor::is_mkldnn() const {
+inline bool Tensor::is_dnnl() const {
   // NB: this is not a native function to avoid dispatching overhead.
-  return impl_->is_mkldnn();
+  return impl_->is_dnnl();
 }
 
-inline bool is_mkldnn(Tensor self) {
-  return self.is_mkldnn();
+inline bool is_dnnl(Tensor self) {
+  return self.is_dnnl();
 }
 
 inline bool Tensor::is_quantized() const {

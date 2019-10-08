@@ -10,7 +10,7 @@ import caffe2.proto.caffe2_pb2 as caffe2_pb2
 from caffe2.python import core, workspace, timeout_guard
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class BlobsQueueDBTest(unittest.TestCase):
     def test_create_blobs_queue_db_string(self):
         device_opt = core.DeviceOption(caffe2_pb2.IDEEP, 0)

@@ -5,29 +5,29 @@
 #include <ATen/cpu/vec256/functional.h>
 #include <ATen/cpu/vec256/vec256.h>
 
-#if !AT_MKLDNN_ENABLED()
+#if !AT_DNNL_ENABLED()
 
 namespace at {
 namespace native {
 
-Tensor& mkldnn_zero_(Tensor& self) {
-  AT_ERROR("mkldnn_zero_: ATen not compiled with MKLDNN support");
+Tensor& dnnl_zero_(Tensor& self) {
+  AT_ERROR("dnnl_zero_: ATen not compiled with DNNL support");
 }
 
 } // namespace native
 } // namespace at
 
-#else // AT_MKLDNN_EBABLED
+#else // AT_DNNL_EBABLED
 
-#include <ATen/native/mkldnn/MKLDNNCommon.h>
+#include <ATen/native/dnnl/DNNLCommon.h>
 
 namespace at {
 namespace native {
 
-Tensor& mkldnn_zero_(Tensor& self) {
+Tensor& dnnl_zero_(Tensor& self) {
   using Vec = vec256::Vec256<float>;
 
-  ideep::tensor& x = itensor_from_mkldnn(self);
+  ideep::tensor& x = itensor_from_dnnl(self);
 
   auto n = x.get_nelems();
   auto* x_ = static_cast<float*>(x.get_data_handle());
@@ -45,4 +45,4 @@ Tensor& mkldnn_zero_(Tensor& self) {
 } // namespace native
 } // namespace at
 
-#endif // AT_MKLDNN_EBABLED
+#endif // AT_DNNL_EBABLED

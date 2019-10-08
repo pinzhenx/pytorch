@@ -2,43 +2,43 @@
 #include <ATen/Config.h>
 #include <ATen/NativeFunctions.h>
 
-#if !AT_MKLDNN_ENABLED()
+#if !AT_DNNL_ENABLED()
 
 namespace at {
 namespace native {
 
-Tensor mkldnn_softmax(
+Tensor dnnl_softmax(
     const Tensor& self,
     const int64_t dim,
     const bool half_to_float) {
-  AT_ERROR("mkldnn_softmax: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_softmax: ATen not compiled with DNNL support");
 }
 
 } // namespace native
 } // namespace at
 
-#else // AT_MKLDNN_EBABLED
+#else // AT_DNNL_EBABLED
 
-#include <ATen/native/mkldnn/MKLDNNCommon.h>
+#include <ATen/native/dnnl/DNNLCommon.h>
 
 namespace at {
 namespace native {
 
-Tensor mkldnn_softmax(
+Tensor dnnl_softmax(
     const Tensor& self,
     const int64_t dim,
     const bool half_to_float) {
   AT_ASSERTM(
       !half_to_float,
-      "softmax with half to float conversion is not supported on Mkldnn");
+      "softmax with half to float conversion is not supported on Dnnl");
   const int64_t wrapped_dim = maybe_wrap_dim(dim, self.dim());
-  ideep::tensor& x = itensor_from_mkldnn(self);
+  ideep::tensor& x = itensor_from_dnnl(self);
   ideep::tensor y;
-  ideep::softmax_forward::compute<AllocForMKLDNN>(x, y, wrapped_dim);
-  return new_with_itensor_mkldnn(std::move(y), self.options());
+  ideep::softmax_forward::compute<AllocForDNNL>(x, y, wrapped_dim);
+  return new_with_itensor_dnnl(std::move(y), self.options());
 }
 
 } // namespace native
 } // namespace at
 
-#endif // AT_MKLDNN_EBABLED
+#endif // AT_DNNL_EBABLED

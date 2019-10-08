@@ -1,7 +1,7 @@
 #include "caffe2/opt/optimize_ideep.h"
 #include "caffe2/opt/converter.h"
 
-#ifdef CAFFE2_USE_MKLDNN
+#ifdef CAFFE2_USE_DNNL
 #include <cpuinfo.h>
 #include "caffe2/ideep/ideep_utils.h"
 #endif
@@ -11,8 +11,8 @@ namespace opt {
 
 using namespace nom;
 
-#ifndef CAFFE2_USE_MKLDNN
-void OptimizeForMkldnn(
+#ifndef CAFFE2_USE_DNNL
+void OptimizeForDnnl(
     repr::NNModule* nn,
     caffe2::Workspace* ws,
     bool training_mode) {
@@ -878,13 +878,13 @@ void preConvertFiltersFormat(repr::NNModule* nn, caffe2::Workspace* ws) {
       auto* op = getMutableOpDef(*convTranspose);
       auto aalgorithm = ialgo::deconvolution_direct;
       auto dataType = filter->get_data_type();
-      ideep::tensor::dims filter_dims_mkldnn{filter->get_dim(1),
+      ideep::tensor::dims filter_dims_dnnl{filter->get_dim(1),
                                              filter->get_dim(0),
                                              filter->get_dim(2),
                                              filter->get_dim(3)};
       expectedDesc =
           ideep::convolution_transpose_forward::expected_weights_descriptor(
-              filter_dims_mkldnn,
+              filter_dims_dnnl,
               dataType,
               strides,
               {pads[0], pads[1]},
@@ -982,7 +982,7 @@ static Fuser fusers[] = {
     fusePreConvertOp,
 };
 
-void OptimizeForMkldnn(
+void OptimizeForDnnl(
     repr::NNModule* nn,
     caffe2::Workspace* ws,
     bool training_mode) {
@@ -999,7 +999,7 @@ void OptimizeForMkldnn(
   setPoolingInferenceMode(nn);
 }
 
-#endif // CAFFE2_USE_MKLDNN
+#endif // CAFFE2_USE_DNNL
 
 } // namespace opt
 } // namespace caffe2

@@ -37,7 +37,7 @@ struct ConvParams {
   bool use_cudnn(const at::Tensor& input) const;
   bool use_cudnn_depthwise(const at::Tensor& input, const at::Tensor& weight) const;
   bool use_miopen(const at::Tensor& input) const;
-  bool use_mkldnn(const at::Tensor& input) const;
+  bool use_dnnl(const at::Tensor& input) const;
   bool use_nnpack(const at::Tensor& input) const;
   bool is_depthwise(const at::Tensor& input, const at::Tensor& weight) const;
 };
@@ -174,12 +174,12 @@ auto ConvParams::use_miopen(const at::Tensor& input) const -> bool {
          ;
 }
 
-auto ConvParams::use_mkldnn(const at::Tensor& input) const -> bool {
-#if AT_MKLDNN_ENABLED()
-  if (!at::globalContext().userEnabledMkldnn()) {
+auto ConvParams::use_dnnl(const at::Tensor& input) const -> bool {
+#if AT_DNNL_ENABLED()
+  if (!at::globalContext().userEnabledDnnl()) {
     return false;
   }
-  return (input.is_mkldnn()) || // input is mkldnn Tensor
+  return (input.is_dnnl()) || // input is dnnl Tensor
     (input.type().backend() == at::Backend::CPU &&
      input.scalar_type() == kFloat && // only on CPU Float Tensors
      !is_dilated() && // doesn't support dilation
@@ -357,13 +357,13 @@ auto ConvParams::use_cudnn_depthwise(
 
 static void check_shape_forward(const at::Tensor& input,
                                 const at::Tensor& weight, const at::Tensor& bias,
-                                const ConvParams& params, bool input_is_mkldnn) {
+                                const ConvParams& params, bool input_is_dnnl) {
   int64_t k = input.ndimension();
   int64_t weight_dim = weight.ndimension();
   std::vector<int64_t> weight_sizes(weight_dim);
-  // mkldnn conv2d weights could have been re-ordered to 5d by
-  // mkldnn_reorder_conv2d_weight
-  if ((weight_dim == k + 1) && input_is_mkldnn) {
+  // dnnl conv2d weights could have been re-ordered to 5d by
+  // dnnl_reorder_conv2d_weight
+  if ((weight_dim == k + 1) && input_is_dnnl) {
     weight_sizes[0] = weight.size(0) * weight.size(1);
     std::copy_n(
         weight.sizes().cbegin() + 2, k - 1, weight_sizes.begin() + 1);
@@ -529,7 +529,7 @@ at::Tensor convolution_overrideable(
     const Tensor& input, const Tensor& weight, const Tensor& bias,
     IntArrayRef stride, IntArrayRef padding, IntArrayRef dilation,
     bool transposed, IntArrayRef output_padding, int64_t groups) {
-  AT_ERROR("You are likely triggering this with tensor backend other than CPU/CUDA/MKLDNN, if this is intended, please use globalATenDispatch().registerOp to override this function ");
+  AT_ERROR("You are likely triggering this with tensor backend other than CPU/CUDA/DNNL, if this is intended, please use globalATenDispatch().registerOp to override this function ");
 }
 
 at::Tensor _convolution(
@@ -538,17 +538,17 @@ at::Tensor _convolution(
     bool transposed_, IntArrayRef output_padding_, int64_t groups_,
     bool benchmark, bool deterministic, bool cudnn_enabled) {
 
-  const bool input_is_mkldnn = input_r.is_mkldnn();
+  const bool input_is_dnnl = input_r.is_dnnl();
   auto input = input_r;
-  if (!input_is_mkldnn) {
+  if (!input_is_dnnl) {
     input = input.contiguous();
   }
   auto weight = weight_r;
   auto bias = bias_r;
   auto k = weight.ndimension();
-  // mkldnn conv2d weights could have been re-ordered to 5d by
-  // mkldnn_reorder_conv2d_weight
-  if (input_is_mkldnn && (k == input.ndimension() + 1)) {
+  // dnnl conv2d weights could have been re-ordered to 5d by
+  // dnnl_reorder_conv2d_weight
+  if (input_is_dnnl && (k == input.ndimension() + 1)) {
     k = input.ndimension();
   }
   int64_t dim = k - 2;
@@ -566,7 +566,7 @@ at::Tensor _convolution(
   params.deterministic = deterministic;
   params.cudnn_enabled = cudnn_enabled;
 
-  check_shape_forward(input, weight, bias, params, input_is_mkldnn);
+  check_shape_forward(input, weight, bias, params, input_is_dnnl);
 
   if (k == 3) {
     params.view1d_as_2d();
@@ -628,20 +628,20 @@ at::Tensor _convolution(
           input, weight, bias,
           params.padding, params.stride, params.dilation, params.groups, params.benchmark, params.deterministic);
     }
-  } else if (params.use_mkldnn(input)) {
-#if AT_MKLDNN_ENABLED()
+  } else if (params.use_dnnl(input)) {
+#if AT_DNNL_ENABLED()
     TORCH_CHECK(input.type() == weight.type(),
              "Input type (", input.type().toString(), ") and weight type (", weight.type().toString(),
              ") should be the same");
     TORCH_CHECK(!bias.defined() || (input.type() == bias.type()),
              "Input type (", input.type().toString(), ") and bias type (", bias.type().toString(),
              ") should be the same");
-    if (!input_is_mkldnn) {
-      output = at::mkldnn_convolution(input, weight.contiguous(), bias.defined() ? bias.contiguous() : bias,
+    if (!input_is_dnnl) {
+      output = at::dnnl_convolution(input, weight.contiguous(), bias.defined() ? bias.contiguous() : bias,
                                       params.padding, params.stride, params.dilation, params.groups);
     } else {
-      // do not call contiguous on mkldnn tensor
-      output = at::mkldnn_convolution(input, weight, bias,
+      // do not call contiguous on dnnl tensor
+      output = at::dnnl_convolution(input, weight, bias,
                                       params.padding, params.stride, params.dilation, params.groups);
     }
 #endif
@@ -747,7 +747,7 @@ std::tuple<Tensor, Tensor, Tensor> convolution_backward_overrideable(
         const Tensor& grad_output, const Tensor& input, const Tensor& weight,
         IntArrayRef stride, IntArrayRef padding, IntArrayRef dilation,
         bool transposed, IntArrayRef output_padding, int64_t groups, std::array<bool, 3> output_mask) {
-  AT_ERROR("You are likely triggering this with tensor backend other than CPU/CUDA/MKLDNN, if this is intended, please use globalATenDispatch().registerOp to override this function ");
+  AT_ERROR("You are likely triggering this with tensor backend other than CPU/CUDA/DNNL, if this is intended, please use globalATenDispatch().registerOp to override this function ");
   return std::tuple<Tensor, Tensor, Tensor>(
           at::empty_like(input),
           at::empty_like(weight),

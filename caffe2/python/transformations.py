@@ -46,9 +46,9 @@ def fuseNNPACKConvRelu(net):
     )
 
 
-def optimizeForMKLDNN(net, training_mode = False):
+def optimizeForDNNL(net, training_mode = False):
     net.Proto().ParseFromString(
-        C.transform_optimizeForMKLDNN(net.Proto().SerializeToString(), training_mode)
+        C.transform_optimizeForDNNL(net.Proto().SerializeToString(), training_mode)
     )
 
 

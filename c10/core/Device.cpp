@@ -16,7 +16,7 @@ DeviceType parse_type(const std::string& device_string) {
   static const std::array<std::pair<std::string, DeviceType>, 9> types = {{
       {"cpu", DeviceType::CPU},
       {"cuda", DeviceType::CUDA},
-      {"mkldnn", DeviceType::MKLDNN},
+      {"dnnl", DeviceType::DNNL},
       {"opengl", DeviceType::OPENGL},
       {"opencl", DeviceType::OPENCL},
       {"ideep", DeviceType::IDEEP},
@@ -34,7 +34,7 @@ DeviceType parse_type(const std::string& device_string) {
     return device->second;
   }
   AT_ERROR(
-      "Expected one of cpu, cuda, mkldnn, opengl, opencl, ideep, hip, msnpu device type at start of device string: ", device_string);
+      "Expected one of cpu, cuda, dnnl, opengl, opencl, ideep, hip, msnpu device type at start of device string: ", device_string);
 }
 } // namespace
 

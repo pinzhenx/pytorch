@@ -7234,7 +7234,7 @@ class TestNN(NNTestCase):
         dummy_out = func(*inputs)
         grad_y = torch.randn_like(dummy_out, device=device, dtype=dtype, requires_grad=True)
 
-        # Issue #15353: test mkldnn double backward, don't run gradgradcheck due
+        # Issue #15353: test dnnl double backward, don't run gradgradcheck due
         # to imprecision issues
         if dtype == torch.float:
             g, = torch.autograd.grad(dummy_out.sum(), x, create_graph=True)

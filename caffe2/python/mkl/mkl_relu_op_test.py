@@ -12,8 +12,8 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.mkl_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn,
-                 "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl,
+                 "Skipping as we do not have dnnl.")
 class MKLReluTest(hu.HypothesisTestCase):
     @given(size=st.integers(8, 20),
            input_channels=st.integers(1, 3),

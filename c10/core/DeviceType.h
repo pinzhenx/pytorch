@@ -15,7 +15,7 @@ namespace c10 {
 enum class DeviceType : int16_t {
   CPU = 0,
   CUDA = 1, // CUDA.
-  MKLDNN = 2, // Reserved for explicit MKLDNN
+  DNNL = 2, // Reserved for explicit DNNL
   OPENGL = 3, // OpenGL
   OPENCL = 4, // OpenCL
   IDEEP = 5, // IDEEP.

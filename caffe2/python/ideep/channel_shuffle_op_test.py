@@ -12,7 +12,7 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class ChannelShuffleTest(hu.HypothesisTestCase):
     @given(size=st.integers(8, 10),
            input_channels=st.integers(1, 3),

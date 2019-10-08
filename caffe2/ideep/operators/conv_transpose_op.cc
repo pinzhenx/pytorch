@@ -38,11 +38,11 @@ class IDEEPConvTransposeOp final : public IDEEPConvTransposeUnpoolBase {
 
       Y_dims = CalcOutputDims(X, filter.get_dim(1));
 
-      ideep::tensor::dims filter_dims_mkldnn {filter.get_dim(1), filter.get_dim(0),
+      ideep::tensor::dims filter_dims_dnnl {filter.get_dim(1), filter.get_dim(0),
           filter.get_dim(2), filter.get_dim(3)};
       auto expected_descriptor =
           ideep::convolution_transpose_forward::expected_weights_descriptor(
-              filter_dims_mkldnn,
+              filter_dims_dnnl,
               filter.get_data_type(),
               stride_,
               pad_tl(),
@@ -55,7 +55,7 @@ class IDEEPConvTransposeOp final : public IDEEPConvTransposeUnpoolBase {
 
       if (training_mode_ || weights_changed) {
         auto filter_in = filter;
-        // Framework has filters in IOHW while MKL-DNN requires OIHW,
+        // Framework has filters in IOHW while DNNL requires OIHW,
         // we have to do explicit conversion here.
         filter_in.set_public_format(ideep::format::iohw);
         filter_.init(expected_descriptor);
@@ -137,7 +137,7 @@ class IDEEPConvTransposeGradientOp final : public IDEEPConvTransposeUnpoolBase {
               stride_,
               pad_tl(),
               pad_br());
-      // Framework has filters in IOHW while MKL-DNN requires OIHW,
+      // Framework has filters in IOHW while DNNL requires OIHW,
       // we have to do explicit conversion here.
       filter_in.set_public_format(ideep::format::iohw);
       filter_.init(expected_descriptor);
@@ -162,7 +162,7 @@ class IDEEPConvTransposeGradientOp final : public IDEEPConvTransposeUnpoolBase {
     }
 
     if (!pre_converted) {
-      // Framework has filters in IOHW while MKL-DNN requires OIHW,
+      // Framework has filters in IOHW while DNNL requires OIHW,
       // we have to do explicit conversion here.
       dfilter_.set_public_format(ideep::format::iohw);
       dfilter->reinit(filter.get_descriptor());

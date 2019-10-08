@@ -558,7 +558,7 @@ class TestJit(JitTestCase):
                 x.device,
                 x.shape,
                 x.is_cuda,
-                x.is_mkldnn,
+                x.is_dnnl,
                 x.is_quantized,
                 x.requires_grad,
                 # x.layout TODO: layout long -> instance conversion

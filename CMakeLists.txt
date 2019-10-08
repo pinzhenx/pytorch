@@ -172,12 +172,12 @@ option(USE_TENSORRT "Using Nvidia TensorRT library" OFF)
 option(USE_ZMQ "Use ZMQ" OFF)
 option(USE_ZSTD "Use ZSTD" OFF)
 cmake_dependent_option(
-  USE_MKLDNN "Use MKLDNN. Only available on x86 and x86_64." ON
+  USE_DNNL "Use DNNL. Only available on x86 and x86_64." ON
   "CPU_INTEL" OFF)
-set(MKLDNN_ENABLE_CONCURRENT_EXEC ${USE_MKLDNN})
+set(DNNL_ENABLE_CONCURRENT_EXEC ${USE_DNNL})
 cmake_dependent_option(
-    USE_MKLDNN_CBLAS "Use CBLAS in MKLDNN" OFF
-    "USE_MKLDNN" OFF)
+    USE_DNNL_CBLAS "Use CBLAS in DNNL" OFF
+    "USE_DNNL" OFF)
 option(USE_DISTRIBUTED "Use distributed" ON)
 cmake_dependent_option(
     USE_MPI "Use MPI for Caffe2. Only available if USE_DISTRIBUTED is on." ON
@@ -610,7 +610,7 @@ if (BUILD_SHARED_LIBS)
       ${PROJECT_SOURCE_DIR}/cmake/public/glog.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/gflags.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/mkl.cmake
-      ${PROJECT_SOURCE_DIR}/cmake/public/mkldnn.cmake
+      ${PROJECT_SOURCE_DIR}/cmake/public/dnnl.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/protobuf.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/threads.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/utils.cmake

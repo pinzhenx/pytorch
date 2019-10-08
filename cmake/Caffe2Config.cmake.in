@@ -108,8 +108,8 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/public/mkl.cmake")
 
-if (@USE_MKLDNN@)
-  include("${CMAKE_CURRENT_LIST_DIR}/public/mkldnn.cmake")
+if (@USE_DNNL@)
+  include("${CMAKE_CURRENT_LIST_DIR}/public/dnnl.cmake")
 endif()
 
 # import targets

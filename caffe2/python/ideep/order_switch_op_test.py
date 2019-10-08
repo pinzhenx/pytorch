@@ -14,7 +14,7 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import core, workspace
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class OrderSwitchTest(hu.HypothesisTestCase):
     @given(n=st.integers(1, 128),
            c=st.integers(1, 64),

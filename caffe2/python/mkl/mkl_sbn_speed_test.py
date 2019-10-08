@@ -9,7 +9,7 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import cnn, core, workspace, test_util
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl, "Skipping as we do not have dnnl.")
 class TestMKLBasic(test_util.TestCase):
     def testSpatialBNTestingSpeed(self):
 
@@ -20,7 +20,7 @@ class TestMKLBasic(test_util.TestCase):
         mean = np.random.randn(input_channel).astype(np.float32)
         var = np.random.rand(input_channel).astype(np.float32) + 0.5
 
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("scale", scale)
@@ -64,7 +64,7 @@ class TestMKLBasic(test_util.TestCase):
         #mean = np.zeros(input_channel)
         #var = np.zeros(input_channel)
 
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("scale", scale)

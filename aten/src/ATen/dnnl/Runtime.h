@@ -1,8 +1,8 @@
 #pragma once
 
-#include <mkldnn.hpp>
+#include <dnnl.hpp>
 
-using namespace mkldnn;
+using namespace dnnl;
 
 namespace at { namespace native {
 
@@ -19,7 +19,7 @@ struct CpuEngine {
   CpuEngine& operator=(CpuEngine const&) = delete;
 
 protected:
-  CpuEngine():_cpu_engine(mkldnn::engine::cpu, 0) {}
+  CpuEngine():_cpu_engine(dnnl::engine::kind::cpu, 0) {}
   ~CpuEngine() {}
 
 private:
@@ -39,7 +39,8 @@ struct Stream {
   Stream& operator=(Stream const&) = delete;
 
 protected:
-  Stream():_cpu_stream(mkldnn::stream::kind::eager) {}
+  // XPZ: correct ?
+  Stream():_cpu_stream(CpuEngine::Instance().get_engine()) {}
   ~Stream() {}
 
 private:

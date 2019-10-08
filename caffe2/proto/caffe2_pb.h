@@ -10,7 +10,7 @@ constexpr DeviceType CPU = DeviceType::CPU;
 constexpr DeviceType CUDA = DeviceType::CUDA;
 constexpr DeviceType OPENGL = DeviceType::OPENGL;
 constexpr DeviceType OPENCL = DeviceType::OPENCL;
-constexpr DeviceType MKLDNN = DeviceType::MKLDNN;
+constexpr DeviceType DNNL = DeviceType::DNNL;
 constexpr DeviceType IDEEP = DeviceType::IDEEP;
 constexpr DeviceType HIP = DeviceType::HIP;
 constexpr DeviceType COMPILE_TIME_MAX_DEVICE_TYPES =
@@ -27,8 +27,8 @@ inline CAFFE2_API DeviceType ProtoToType(const caffe2::DeviceTypeProto p) {
       return DeviceType::OPENGL;
     case caffe2::PROTO_OPENCL:
       return DeviceType::OPENCL;
-    case caffe2::PROTO_MKLDNN:
-      return DeviceType::MKLDNN;
+    case caffe2::PROTO_DNNL:
+      return DeviceType::DNNL;
     case caffe2::PROTO_IDEEP:
       return DeviceType::IDEEP;
     case caffe2::PROTO_HIP:
@@ -61,8 +61,8 @@ inline CAFFE2_API DeviceTypeProto TypeToProto(const DeviceType& t) {
       return caffe2::PROTO_OPENGL;
     case DeviceType::OPENCL:
       return caffe2::PROTO_OPENCL;
-    case DeviceType::MKLDNN:
-      return caffe2::PROTO_MKLDNN;
+    case DeviceType::DNNL:
+      return caffe2::PROTO_DNNL;
     case DeviceType::IDEEP:
       return caffe2::PROTO_IDEEP;
     case DeviceType::HIP:
@@ -99,7 +99,7 @@ inline CAFFE2_API caffe2::DeviceOption DeviceToOption(
       break;
     case DeviceType::OPENGL:
     case DeviceType::OPENCL:
-    case DeviceType::MKLDNN:
+    case DeviceType::DNNL:
     case DeviceType::IDEEP:
     case DeviceType::COMPILE_TIME_MAX_DEVICE_TYPES:
     case DeviceType::ONLY_FOR_TEST:

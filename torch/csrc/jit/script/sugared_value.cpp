@@ -76,7 +76,7 @@ std::shared_ptr<SugaredValue> SimpleValue::attr(
         "shape",
         "is_cuda",
         "is_sparse",
-        "is_mkldnn",
+        "is_dnnl",
         "is_quantized",
         "requires_grad",
         "layout",

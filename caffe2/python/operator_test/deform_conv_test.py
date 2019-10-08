@@ -104,7 +104,7 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels=st.integers(1, 8),
         batch_size=st.integers(1, 3),
         order=st.sampled_from(["NCHW"]),
-        engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+        engine=st.sampled_from(["", "CUDNN", "DNNL"]),
         use_bias=st.booleans(),
         deformable_group=st.integers(1, 3),
         **hu.gcs_gpu_only
@@ -131,7 +131,7 @@ class TestConvolution(hu.HypothesisTestCase):
         if gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN":
             assume(_cudnn_supports(dilation=(dilation > 1), nhwc=(order == "NHWC")))
 
-        assume(engine != "MKLDNN" or use_bias is True)
+        assume(engine != "DNNL" or use_bias is True)
 
         op = core.CreateOperator(
             "DeformConv",
@@ -218,7 +218,7 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels=st.integers(1, 8),
         batch_size=st.integers(1, 3),
         order=st.sampled_from(["NCHW"]),
-        engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+        engine=st.sampled_from(["", "CUDNN", "DNNL"]),
         use_bias=st.booleans(),
         deformable_group=st.integers(1, 4),
         **hu.gcs_gpu_only
@@ -245,7 +245,7 @@ class TestConvolution(hu.HypothesisTestCase):
         if gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN":
             assume(_cudnn_supports(dilation=(dilation > 1), nhwc=(order == "NHWC")))
 
-        assume(engine != "MKLDNN" or use_bias is True)
+        assume(engine != "DNNL" or use_bias is True)
 
         op = core.CreateOperator(
             "DeformConv",
@@ -316,7 +316,7 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels=st.integers(1, 8),
         batch_size=st.integers(1, 3),
         order=st.sampled_from(["NCHW"]),
-        engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+        engine=st.sampled_from(["", "CUDNN", "DNNL"]),
         use_bias=st.booleans(),
         deformable_group=st.integers(1, 4),
         **hu.gcs_gpu_only
@@ -343,7 +343,7 @@ class TestConvolution(hu.HypothesisTestCase):
         if gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN":
             assume(_cudnn_supports(dilation=(dilation > 1), nhwc=(order == "NHWC")))
 
-        assume(engine != "MKLDNN" or use_bias is True)
+        assume(engine != "DNNL" or use_bias is True)
 
         op = core.CreateOperator(
             "DeformConv",
@@ -518,7 +518,7 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels=st.integers(1, 8),
         batch_size=st.integers(1, 3),
         order=st.sampled_from(["NCHW"]),
-        engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+        engine=st.sampled_from(["", "CUDNN", "DNNL"]),
         use_bias=st.booleans(),
         deformable_group=st.integers(1, 3),
         **hu.gcs_gpu_only
@@ -545,7 +545,7 @@ class TestConvolution(hu.HypothesisTestCase):
         if gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN":
             assume(_cudnn_supports(dilation=(dilation > 1), nhwc=(order == "NHWC")))
 
-        assume(engine != "MKLDNN" or use_bias is True)
+        assume(engine != "DNNL" or use_bias is True)
 
         op = core.CreateOperator(
             "DeformConv",
