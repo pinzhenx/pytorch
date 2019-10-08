@@ -127,7 +127,7 @@ else
 fi
 if [[ $BUILD_ENVIRONMENT == *mkl* ]]; then
   build_args+=("BLAS=MKL")
-  build_args+=("USE_MKLDNN=ON")
+  build_args+=("USE_DNNL=ON")
 fi
 build_args+=("BUILD_BINARY=ON")
 build_args+=("BUILD_TEST=ON")
@@ -249,7 +249,7 @@ else
   build_args+=("USE_GLOG=ON")
   build_args+=("USE_GFLAGS=ON")
   build_args+=("USE_FBGEMM=OFF")
-  build_args+=("USE_MKLDNN=OFF")
+  build_args+=("USE_DNNL=OFF")
   build_args+=("USE_DISTRIBUTED=ON")
   for build_arg in "${build_args[@]}"; do
     export $build_arg

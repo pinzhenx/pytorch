@@ -12,7 +12,7 @@ from caffe2.python import core, workspace
 import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class TransposeTest(hu.HypothesisTestCase):
     @given(
         X=hu.tensor(min_dim=1, max_dim=5, dtype=np.float32), use_axes=st.booleans(), **mu.gcs)

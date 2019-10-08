@@ -5,9 +5,9 @@
 namespace at {
 namespace native {
 
-Tensor mkldnn_view(const Tensor& self, IntArrayRef size);
+Tensor dnnl_view(const Tensor& self, IntArrayRef size);
 
-Tensor mkldnn_clone(const Tensor& self);
+Tensor dnnl_clone(const Tensor& self);
 
 } // namespace native
 } // namespace at

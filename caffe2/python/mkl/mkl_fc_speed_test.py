@@ -9,7 +9,7 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import cnn, core, workspace, test_util
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl, "Skipping as we do not have dnnl.")
 class TestMKLBasic(test_util.TestCase):
     def testFCSpeed(self):
         # We randomly select a shape to test the speed. Intentionally we
@@ -19,7 +19,7 @@ class TestMKLBasic(test_util.TestCase):
         #X = np.random.rand(32, 256*6*6).astype(np.float32) - 0.5
         W = np.random.rand(4096, 9216).astype(np.float32) - 0.5
         b = np.random.rand(4096).astype(np.float32) - 0.5
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("W", W)
@@ -54,7 +54,7 @@ class TestMKLBasic(test_util.TestCase):
 
         w_fc = np.random.rand(4096, 9216).astype(np.float32) - 0.5
         b_fc = np.random.rand(4096).astype(np.float32) - 0.5
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("W", W)

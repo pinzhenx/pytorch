@@ -10,9 +10,9 @@ namespace native {
 // *** Warning: this code is here to workaround an issue:
 // https://github.com/pytorch/pytorch/issues/23825
 //
-// This flag allows us to temporarily disable MKLDNN to work around cases
+// This flag allows us to temporarily disable DNNL to work around cases
 // where there are bugs.
-extern CAFFE2_API std::atomic<bool> disable_mkldnn_conv;
+extern CAFFE2_API std::atomic<bool> disable_dnnl_conv;
 
 }  // namespace at
 }  // namespace native

@@ -33,7 +33,7 @@ C10_EXPORT int DeviceId(const DeviceOption& option) {
     case PROTO_CUDA:
     case PROTO_HIP:
       return option.device_id();
-    case PROTO_MKLDNN:
+    case PROTO_DNNL:
       return option.numa_node_id();
     default:
       CAFFE_THROW("Unknown device id for device type: ", option.device_type());
@@ -51,7 +51,7 @@ C10_EXPORT bool IsSameDevice(const DeviceOption& lhs, const DeviceOption& rhs) {
 C10_EXPORT bool IsCPUDeviceType(int device_type) {
   static const std::unordered_set<int> cpu_types{
       PROTO_CPU,
-      PROTO_MKLDNN,
+      PROTO_DNNL,
       PROTO_IDEEP,
       PROTO_ONLY_FOR_TEST,
   };

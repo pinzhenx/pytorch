@@ -90,7 +90,7 @@ void setOperatorEngine(caffe2::NetDef* net_def, const string& backend) {
     string engine = backend == "nnpack"
         ? "NNPACK"
         : backend == "eigen" ? "EIGEN"
-                             : backend == "mkl" ? "MKLDNN"
+                             : backend == "mkl" ? "DNNL"
                                                 : backend == "cuda"
                     ? "CUDA"
                     : backend == "dnnlowp" ? "DNNLOWP"

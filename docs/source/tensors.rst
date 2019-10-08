@@ -441,7 +441,7 @@ view of a storage and defines numeric operations on it.
    .. automethod:: t
    .. automethod:: t_
    .. automethod:: to
-   .. automethod:: to_mkldnn
+   .. automethod:: to_dnnl
    .. automethod:: take
    .. automethod:: tan
    .. automethod:: tan_

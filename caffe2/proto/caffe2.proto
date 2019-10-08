@@ -184,7 +184,7 @@ message Argument {
 enum DeviceTypeProto {
   PROTO_CPU = 0;                    // In default, we will use CPU.
   PROTO_CUDA = 1;                   // CUDA.
-  PROTO_MKLDNN = 2;                 // Reserved for explicit MKLDNN
+  PROTO_DNNL = 2;                 // Reserved for explicit DNNL
   PROTO_OPENGL = 3;                 // OpenGL
   PROTO_OPENCL = 4;                 // OpenCL
   PROTO_IDEEP = 5;                  // IDEEP.

@@ -12,8 +12,8 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.mkl_test_util as mu
 import caffe2.proto.caffe2_pb2 as pb2
 
-@unittest.skipIf(not workspace.C.has_mkldnn,
-                 "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl,
+                 "Skipping as we do not have dnnl.")
 class MKCopyTest(hu.HypothesisTestCase):
     @given(width=st.integers(7, 9),
            height=st.integers(7, 9),
@@ -33,13 +33,13 @@ class MKCopyTest(hu.HypothesisTestCase):
             "CopyCPUToMKL",
             ["X"],
             ["X_MKL"],
-            device_option=pb2.DeviceOption(device_type=pb2.MKLDNN)
+            device_option=pb2.DeviceOption(device_type=pb2.DNNL)
         ))
         self.ws.run(core.CreateOperator(
             "CopyMKLToCPU",
             ["X_MKL"],
             ["X_copy"],
-            device_option=pb2.DeviceOption(device_type=pb2.MKLDNN)
+            device_option=pb2.DeviceOption(device_type=pb2.DNNL)
         ))
         np.testing.assert_array_equal(X, self.ws.blobs["X_copy"].fetch())
 
@@ -52,13 +52,13 @@ class MKCopyTest(hu.HypothesisTestCase):
             "CopyCPUToMKL",
             ["X"],
             ["X_MKL"],
-            device_option=pb2.DeviceOption(device_type=pb2.MKLDNN)
+            device_option=pb2.DeviceOption(device_type=pb2.DNNL)
         ))
         self.ws.run(core.CreateOperator(
             "CopyMKLToCPU",
             ["X_MKL"],
             ["X_copy"],
-            device_option=pb2.DeviceOption(device_type=pb2.MKLDNN)
+            device_option=pb2.DeviceOption(device_type=pb2.DNNL)
         ))
         np.testing.assert_equal(shape, self.ws.blobs["X_copy"].fetch().shape)
 

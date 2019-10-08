@@ -1,4 +1,4 @@
-#include <ATen/native/mkldnn/Utils.h>
+#include <ATen/native/dnnl/Utils.h>
 #include <ATen/native/Pool.h>
 
 namespace at { namespace native {

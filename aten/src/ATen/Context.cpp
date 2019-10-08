@@ -63,8 +63,8 @@ bool Context::hasMKL() const {
 #endif
 }
 
-bool Context::hasMKLDNN() const {
-#if AT_MKLDNN_ENABLED()
+bool Context::hasDNNL() const {
+#if AT_DNNL_ENABLED()
   return true;
 #else
   return false;

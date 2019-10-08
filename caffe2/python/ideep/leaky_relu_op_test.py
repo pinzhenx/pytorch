@@ -12,7 +12,7 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class LeakyReluTest(hu.HypothesisTestCase):
     def _get_inputs(self, N, C, H, W, order):
         input_data = np.random.rand(N, C, H, W).astype(np.float32) - 0.5

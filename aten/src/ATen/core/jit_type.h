@@ -547,7 +547,7 @@ struct CAFFE2_API TensorType : public Type {
         sizes_(tensor.sizes().size()),
         strides_(tensor.sizes().size()),
         requires_grad_(tensor.requires_grad()) {
-          if (!tensor.is_mkldnn()) {
+          if (!tensor.is_dnnl()) {
             sizes_ = tensor.sizes().vec();
             strides_ = tensor.strides().vec();
           }

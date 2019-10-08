@@ -3,17 +3,17 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import torch
 
 
-class MkldnnLinear(torch.jit.ScriptModule):
+class DnnlLinear(torch.jit.ScriptModule):
     def __init__(self, dense_module):
-        super(MkldnnLinear, self).__init__()
-        self.register_buffer('weight', dense_module.weight.to_mkldnn())
+        super(DnnlLinear, self).__init__()
+        self.register_buffer('weight', dense_module.weight.to_dnnl())
         if dense_module.bias is not None:
-            self.register_buffer('bias', dense_module.bias.to_mkldnn())
+            self.register_buffer('bias', dense_module.bias.to_dnnl())
         else:
             # TODO: Remove this once ScriptModule supports registering None buffer
             self.register_buffer(
                 'bias',
-                torch.zeros([dense_module.weight.size(0)], dtype=torch.float).to_mkldnn())
+                torch.zeros([dense_module.weight.size(0)], dtype=torch.float).to_dnnl())
 
     @torch.jit.script_method
     def __getstate__(self):
@@ -22,36 +22,36 @@ class MkldnnLinear(torch.jit.ScriptModule):
     @torch.jit.script_method
     def __setstate__(self, state):
         # type: (Tuple[Tensor, Tensor]) -> None
-        self.weight = state[0].to_mkldnn()
-        self.bias = state[1].to_mkldnn()
+        self.weight = state[0].to_dnnl()
+        self.bias = state[1].to_dnnl()
 
     @torch.jit.script_method
     def forward(self, x):
-        x_mkldnn = x if x.is_mkldnn else x.to_mkldnn()
-        y_mkldnn = torch._C._nn.mkldnn_linear(x_mkldnn, self.weight, self.bias)
-        y = y_mkldnn if x.is_mkldnn else y_mkldnn.to_dense()
+        x_dnnl = x if x.is_dnnl else x.to_dnnl()
+        y_dnnl = torch._C._nn.dnnl_linear(x_dnnl, self.weight, self.bias)
+        y = y_dnnl if x.is_dnnl else y_dnnl.to_dense()
         return y
 
 
-class MkldnnConv2d(torch.jit.ScriptModule):
+class DnnlConv2d(torch.jit.ScriptModule):
     __constants__ = ['stride', 'padding', 'dilation', 'groups']
 
     def __init__(self, dense_module):
-        super(MkldnnConv2d, self).__init__()
+        super(DnnlConv2d, self).__init__()
 
         self.stride = dense_module.stride
         self.padding = dense_module.padding
         self.dilation = dense_module.dilation
         self.groups = dense_module.groups
 
-        self.register_buffer('weight', dense_module.weight.to_mkldnn())
+        self.register_buffer('weight', dense_module.weight.to_dnnl())
         if dense_module.bias is not None:
-            self.register_buffer('bias', dense_module.bias.to_mkldnn())
+            self.register_buffer('bias', dense_module.bias.to_dnnl())
         else:
             # TODO: Remove this once ScriptModule supports registering None buffer
             self.register_buffer(
                 'bias',
-                torch.zeros([dense_module.weight.size(0)], dtype=torch.float).to_mkldnn())
+                torch.zeros([dense_module.weight.size(0)], dtype=torch.float).to_dnnl())
 
     @torch.jit.script_method
     def __getstate__(self):
@@ -60,13 +60,13 @@ class MkldnnConv2d(torch.jit.ScriptModule):
     @torch.jit.script_method
     def __setstate__(self, state):
         # type: (Tuple[Tensor, Tensor]) -> None
-        self.weight = torch._C._nn.mkldnn_reorder_conv2d_weight(
-            state[0].to_mkldnn(),
+        self.weight = torch._C._nn.dnnl_reorder_conv2d_weight(
+            state[0].to_dnnl(),
             self.padding,
             self.stride,
             self.dilation,
             self.groups)
-        self.bias = state[1].to_mkldnn()
+        self.bias = state[1].to_dnnl()
 
     @torch.jit.script_method
     def forward(self, x):
@@ -80,11 +80,11 @@ class MkldnnConv2d(torch.jit.ScriptModule):
             self.groups)
 
 
-class MkldnnBatchNorm2d(torch.jit.ScriptModule):
+class DnnlBatchNorm2d(torch.jit.ScriptModule):
     __constants__ = ['exponential_average_factor', 'eps']
 
     def __init__(self, dense_module):
-        super(MkldnnBatchNorm2d, self).__init__()
+        super(DnnlBatchNorm2d, self).__init__()
 
         assert(not dense_module.training)
         assert(dense_module.track_running_stats)
@@ -96,10 +96,10 @@ class MkldnnBatchNorm2d(torch.jit.ScriptModule):
             self.exponential_average_factor = dense_module.momentum
         self.eps = dense_module.eps
 
-        self.register_buffer('weight', dense_module.weight.to_mkldnn())
-        self.register_buffer('bias', dense_module.bias.to_mkldnn())
-        self.register_buffer('running_mean', dense_module.running_mean.to_mkldnn())
-        self.register_buffer('running_var', dense_module.running_var.to_mkldnn())
+        self.register_buffer('weight', dense_module.weight.to_dnnl())
+        self.register_buffer('bias', dense_module.bias.to_dnnl())
+        self.register_buffer('running_mean', dense_module.running_mean.to_dnnl())
+        self.register_buffer('running_var', dense_module.running_var.to_dnnl())
 
     @torch.jit.script_method
     def __getstate__(self):
@@ -112,10 +112,10 @@ class MkldnnBatchNorm2d(torch.jit.ScriptModule):
     @torch.jit.script_method
     def __setstate__(self, state):
         # type: (Tuple[Tensor, Tensor, Tensor, Tensor]) -> None
-        self.weight = state[0].to_mkldnn()
-        self.bias = state[1].to_mkldnn()
-        self.running_mean = state[2].to_mkldnn()
-        self.running_var = state[3].to_mkldnn()
+        self.weight = state[0].to_dnnl()
+        self.bias = state[1].to_dnnl()
+        self.running_mean = state[2].to_dnnl()
+        self.running_var = state[3].to_dnnl()
 
     @torch.jit.script_method
     def forward(self, x):
@@ -132,14 +132,14 @@ class MkldnnBatchNorm2d(torch.jit.ScriptModule):
         )
 
 
-def to_mkldnn(module):
+def to_dnnl(module):
     def m_fn(m):
         if isinstance(m, torch.nn.Linear):
-            return MkldnnLinear(m)
+            return DnnlLinear(m)
         elif isinstance(m, torch.nn.Conv2d):
-            return MkldnnConv2d(m)
+            return DnnlConv2d(m)
         elif isinstance(m, torch.nn.BatchNorm2d):
-            return MkldnnBatchNorm2d(m)
+            return DnnlBatchNorm2d(m)
         else:
             return m
 
@@ -152,7 +152,7 @@ def to_mkldnn(module):
     return m_fn_rec(module)
 
 
-# **** WARNING: This is used to temporarily disable MKL-DNN convolution due
+# **** WARNING: This is used to temporarily disable DNNL convolution due
 # to a bug: https://github.com/pytorch/pytorch/issues/23825
 # Once this bug is fixed, this context manager as well as its callsites
 # should be removed!
@@ -160,9 +160,9 @@ def to_mkldnn(module):
 from contextlib import contextmanager
 
 @contextmanager
-def disable_mkldnn_conv():
-    torch._C._disable_mkldnn_conv()
+def disable_dnnl_conv():
+    torch._C._disable_dnnl_conv()
     try:
         yield
     finally:
-        torch._C._enable_mkldnn_conv()
+        torch._C._enable_dnnl_conv()

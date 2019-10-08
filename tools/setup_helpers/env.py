@@ -56,7 +56,7 @@ def hotpatch_var(var, prefix='USE_'):
 def hotpatch_build_env_vars():
     # Before we run the setup_helpers, let's look for NO_* and WITH_* variables and hotpatch environment with the USE_*
     # equivalent The use of NO_* and WITH_* is deprecated and will be removed in Feb 20, 2020.
-    use_env_vars = ['CUDA', 'CUDNN', 'FBGEMM', 'MKLDNN', 'NNPACK', 'DISTRIBUTED',
+    use_env_vars = ['CUDA', 'CUDNN', 'FBGEMM', 'DNNL', 'NNPACK', 'DISTRIBUTED',
                     'OPENCV', 'TENSORRT', 'QNNPACK', 'FFMPEG', 'SYSTEM_NCCL',
                     'GLOO_IBVERBS']
     list(map(hotpatch_var, use_env_vars))

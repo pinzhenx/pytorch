@@ -10,7 +10,7 @@ import numpy as np
 from caffe2.python import core, workspace
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class TestReShapeOps(TestCase):
     def test_reshape_ops(self):
         device_opt = core.DeviceOption(caffe2_pb2.IDEEP, 0)

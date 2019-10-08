@@ -14,11 +14,11 @@ from caffe2.python import (
     model_helper,
     workspace,
 )
-from caffe2.python.transformations import optimizeForMKLDNN
+from caffe2.python.transformations import optimizeForDNNL
 import caffe2.python.hypothesis_test_util as hu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class PreConvertTest(hu.HypothesisTestCase):
     @given(input_channels=st.integers(15, 16),
            batch_size=st.integers(1, 3))
@@ -68,7 +68,7 @@ class PreConvertTest(hu.HypothesisTestCase):
                     blob_dict[op.input[j]] = workspace.FetchBlob(op.input[j])
 
             workspace.CreateNet(train_model.net, overwrite=True)
-            optimizeForMKLDNN(train_model.net, training_mode=True)
+            optimizeForDNNL(train_model.net, training_mode=True)
             workspace.RunNet(train_model.net)
             for op in train_model.net.Proto().op:
                 for blob in op.output:

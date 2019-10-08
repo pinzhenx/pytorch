@@ -140,7 +140,7 @@ def backend_to_devicetype(backend):
     return backend
 
 backends = ['CPU', 'CUDA']
-densities = ['Dense', 'Sparse', 'Mkldnn']  # TODO: layout instead of densities?
+densities = ['Dense', 'Sparse', 'Dnnl']  # TODO: layout instead of densities?
 
 quantized_backends = ['QuantizedCPU']
 
@@ -310,7 +310,7 @@ def generate_storage_type_and_tensor(backend, density, declarations):
 def iterate_types():
     for backend in backends:
         for density in densities:
-            if density == 'Mkldnn' and backend != 'CPU':
+            if density == 'Dnnl' and backend != 'CPU':
                 continue
             else:
                 yield (backend, density)

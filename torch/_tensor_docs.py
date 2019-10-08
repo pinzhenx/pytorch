@@ -2783,10 +2783,10 @@ Example::
            size=(3, 3), nnz=1, layout=torch.sparse_coo)
 """)
 
-add_docstr_all('to_mkldnn',
+add_docstr_all('to_dnnl',
                r"""
-to_mkldnn() -> Tensor
-Returns a copy of the tensor in ``torch.mkldnn`` layout.
+to_dnnl() -> Tensor
+Returns a copy of the tensor in ``torch.dnnl`` layout.
 
 """)
 

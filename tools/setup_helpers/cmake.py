@@ -78,7 +78,7 @@ def get_cmake_cache_variables_from_file(cmake_cache_file):
         #   "USE_CUDA":BOOL=ON
         #   USE_CUDA=ON
         #   USE_CUDA:=ON
-        #   Intel(R) MKL-DNN_SOURCE_DIR:STATIC=/path/to/pytorch/third_party/ideep/mkl-dnn
+        #   Intel(R) DNNL_SOURCE_DIR:STATIC=/path/to/pytorch/third_party/ideep/dnnl
         #   "OpenMP_COMPILE_RESULT_CXX_openmp:experimental":INTERNAL=FALSE
         matched = re.match(r'("?)(.+?)\1(?::\s*([a-zA-Z_-][a-zA-Z0-9_-]*)?)?\s*=\s*(.*)', line)
         if matched is None:  # Illegal line
@@ -229,7 +229,7 @@ class CMake:
              'EXPERIMENTAL_SINGLE_THREAD_POOL',
              'INSTALL_TEST',
              'MKL_THREADING',
-             'MKLDNN_THREADING',
+             'DNNL_THREADING',
              'MSVC_Z7_OVERRIDE',
              'ONNX_ML',
              'ONNX_NAMESPACE',

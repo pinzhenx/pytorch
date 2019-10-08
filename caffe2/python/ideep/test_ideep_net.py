@@ -90,7 +90,7 @@ def benchmark(args):
     if args.device == 'CPU':
         device_option = core.DeviceOption(caffe2_pb2.CPU)
     elif args.device == 'MKL':
-        device_option = core.DeviceOption(caffe2_pb2.MKLDNN)
+        device_option = core.DeviceOption(caffe2_pb2.DNNL)
     elif args.device == 'IDEEP':
         device_option = core.DeviceOption(caffe2_pb2.IDEEP)
     else:

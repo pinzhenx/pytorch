@@ -2,43 +2,43 @@
 #include <ATen/NativeFunctions.h>
 #include <ATen/Config.h>
 
-#if !AT_MKLDNN_ENABLED()
+#if !AT_DNNL_ENABLED()
 
 namespace at { namespace native {
 
-at::Tensor mkldnn_convolution(
+at::Tensor dnnl_convolution(
     const at::Tensor& input, const at::Tensor& weight, const at::Tensor& bias,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups) {
-  AT_ERROR("mkldnn_convolution_forward: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_convolution_forward: ATen not compiled with DNNL support");
 }
 
-at::Tensor mkldnn_convolution_backward_input(
+at::Tensor dnnl_convolution_backward_input(
     IntArrayRef input_size, const at::Tensor& grad_output, const at::Tensor& weight,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, bool bias_defined) {
-  AT_ERROR("mkldnn_convolution_backward_input: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_convolution_backward_input: ATen not compiled with DNNL support");
 }
 
-std::tuple<at::Tensor,at::Tensor> mkldnn_convolution_backward_weights(
+std::tuple<at::Tensor,at::Tensor> dnnl_convolution_backward_weights(
     IntArrayRef weight_size, const at::Tensor& grad_output, const at::Tensor& input,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, bool bias_defined) {
-  AT_ERROR("mkldnn_convolution_backward_weights: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_convolution_backward_weights: ATen not compiled with DNNL support");
 }
 
-std::tuple<at::Tensor,at::Tensor,at::Tensor> mkldnn_convolution_backward(
+std::tuple<at::Tensor,at::Tensor,at::Tensor> dnnl_convolution_backward(
     const at::Tensor& input, const at::Tensor& grad_output_t, const at::Tensor& weight,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, std::array<bool,3> output_mask) {
-  AT_ERROR("mkldnn_convolution_backward: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_convolution_backward: ATen not compiled with DNNL support");
 }
 
 }}
 
-#else // AT_MKLDNN_EBABLED
+#else // AT_DNNL_EBABLED
 
-#include <ATen/mkldnn/Runtime.h>
-#include <ATen/native/mkldnn/MKLDNNCommon.h>
-#include <ATen/native/mkldnn/Utils.h>
+#include <ATen/dnnl/Runtime.h>
+#include <ATen/native/dnnl/DNNLCommon.h>
+#include <ATen/native/dnnl/Utils.h>
 
-using namespace mkldnn;
+using namespace dnnl;
 
 namespace {
 // Helper function for getting an ideep tensor out of an aten Tensor.
@@ -46,9 +46,9 @@ namespace {
 // tensor is just a view of the storage of the aten dense tensor, so
 // caller needs to make sure the aten dense tensor's lifetime is
 // longer than the ideep tensor.
-inline ideep::tensor get_mkldnn_tensor(const at::Tensor& tensor) {
-  if (tensor.is_mkldnn()) {
-    return at::native::itensor_from_mkldnn(tensor);
+inline ideep::tensor get_dnnl_tensor(const at::Tensor& tensor) {
+  if (tensor.is_dnnl()) {
+    return at::native::itensor_from_dnnl(tensor);
   } else {
     return at::native::itensor_view_from_dense(tensor);
   }
@@ -57,7 +57,7 @@ inline ideep::tensor get_mkldnn_tensor(const at::Tensor& tensor) {
 
 namespace at { namespace native {
 
-ideep::tensor _mkldnn_conv2d(
+ideep::tensor _dnnl_conv2d(
     const ideep::tensor& x,
     const ideep::tensor& w,
     const c10::optional<ideep::tensor>& b,
@@ -66,12 +66,12 @@ ideep::tensor _mkldnn_conv2d(
     at::IntArrayRef dilation,
     int64_t groups) {
   std::vector<int64_t> kernel_size(x.ndims());
-  // mkldnn conv2d weights could have been re-ordered to 5d by
-  // mkldnn_reorder_conv2d_weight
+  // dnnl conv2d weights could have been re-ordered to 5d by
+  // dnnl_reorder_conv2d_weight
   if (w.ndims() == x.ndims() + 1) {
     AT_ASSERTM(
         groups > 1,
-        "Only group _mkldnn_conv2d weights could have been reordered to 5d");
+        "Only group _dnnl_conv2d weights could have been reordered to 5d");
     kernel_size[0] = w.get_dim(0) * w.get_dim(1);
     std::copy_n(
         w.get_dims().cbegin() + 2, x.ndims() - 1, kernel_size.begin() + 1);
@@ -86,7 +86,7 @@ ideep::tensor _mkldnn_conv2d(
 
   ideep::tensor y;
   if (b.has_value()) {
-    ideep::convolution_forward::compute<AllocForMKLDNN>(
+    ideep::convolution_forward::compute<AllocForDNNL>(
         x,
         w,
         b.value(),
@@ -101,7 +101,7 @@ ideep::tensor _mkldnn_conv2d(
         ideep::algorithm::convolution_direct,
         ideep::prop_kind::forward);
   } else {
-    ideep::convolution_forward::compute<AllocForMKLDNN>(
+    ideep::convolution_forward::compute<AllocForDNNL>(
       x,
       w,
       {output_sizes.cbegin(), output_sizes.cend()},
@@ -118,7 +118,7 @@ ideep::tensor _mkldnn_conv2d(
   return y;
 }
 
-at::Tensor mkldnn_convolution(
+at::Tensor dnnl_convolution(
     const at::Tensor& input,
     const at::Tensor& weight,
     const at::Tensor& bias,
@@ -126,31 +126,31 @@ at::Tensor mkldnn_convolution(
     IntArrayRef stride,
     IntArrayRef dilation,
     int64_t groups) {
-  const ideep::tensor mkldnn_input = get_mkldnn_tensor(input);
-  const ideep::tensor mkldnn_weight = get_mkldnn_tensor(weight);
-  c10::optional<ideep::tensor> mkldnn_bias{c10::nullopt};
+  const ideep::tensor dnnl_input = get_dnnl_tensor(input);
+  const ideep::tensor dnnl_weight = get_dnnl_tensor(weight);
+  c10::optional<ideep::tensor> dnnl_bias{c10::nullopt};
   if (bias.defined()) {
-    mkldnn_bias = get_mkldnn_tensor(bias);
+    dnnl_bias = get_dnnl_tensor(bias);
   }
 
-  ideep::tensor mkldnn_output = _mkldnn_conv2d(
-      mkldnn_input,
-      mkldnn_weight,
-      mkldnn_bias,
+  ideep::tensor dnnl_output = _dnnl_conv2d(
+      dnnl_input,
+      dnnl_weight,
+      dnnl_bias,
       padding,
       stride,
       dilation,
       groups);
 
-  if (input.is_mkldnn()) {
-    return new_with_itensor_mkldnn(std::move(mkldnn_output), input.options());
+  if (input.is_dnnl()) {
+    return new_with_itensor_dnnl(std::move(dnnl_output), input.options());
   } else {
-    return mkldnn_to_dense(
-        new_with_itensor_mkldnn(std::move(mkldnn_output), input.options()));
+    return dnnl_to_dense(
+        new_with_itensor_dnnl(std::move(dnnl_output), input.options()));
   }
 }
 
-Tensor mkldnn_convolution_backward_input(
+Tensor dnnl_convolution_backward_input(
     IntArrayRef input_size, const at::Tensor& grad_output, const at::Tensor& weight,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, bool bias_defined)
 {
@@ -262,7 +262,7 @@ Tensor mkldnn_convolution_backward_input(
   return grad_input;
 }
 
-std::tuple<at::Tensor, at::Tensor> mkldnn_convolution_backward_weights(
+std::tuple<at::Tensor, at::Tensor> dnnl_convolution_backward_weights(
     IntArrayRef weight_size, const at::Tensor& grad_output, const at::Tensor& input,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, bool bias_defined)
 {
@@ -395,7 +395,7 @@ std::tuple<at::Tensor, at::Tensor> mkldnn_convolution_backward_weights(
   return std::tuple<at::Tensor, at::Tensor>{grad_weight, grad_bias};
 }
 
-std::tuple<at::Tensor,at::Tensor,at::Tensor> mkldnn_convolution_backward(
+std::tuple<at::Tensor,at::Tensor,at::Tensor> dnnl_convolution_backward(
     const at::Tensor& input, const at::Tensor& grad_output_t, const at::Tensor& weight,
     IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation, int64_t groups, std::array<bool,3> output_mask)
 {
@@ -403,11 +403,11 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> mkldnn_convolution_backward(
 
   Tensor grad_input, grad_weight, grad_bias;
   if (output_mask[0]) {
-    grad_input = at::mkldnn_convolution_backward_input(
+    grad_input = at::dnnl_convolution_backward_input(
       input.sizes(), grad_output, weight, padding, stride, dilation, groups, output_mask[2]);
   }
   if (output_mask[1] || output_mask[2]) {
-    std::tie(grad_weight, grad_bias) = at::mkldnn_convolution_backward_weights(
+    std::tie(grad_weight, grad_bias) = at::dnnl_convolution_backward_weights(
       weight.sizes(), grad_output, input, padding, stride, dilation, groups, output_mask[2]);
   }
 

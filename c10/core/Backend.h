@@ -25,7 +25,7 @@ namespace c10 {
  * or "SparseCUDA"; backend in torch.backends is something like "MKL" or
  * "CUDNN".
  */
-enum class Backend { CPU, CUDA, HIP, SparseCPU, SparseCUDA, SparseHIP, MSNPU, XLA, QuantizedCPU, ComplexCPU, ComplexCUDA, Undefined, MkldnnCPU, NumOptions };
+enum class Backend { CPU, CUDA, HIP, SparseCPU, SparseCUDA, SparseHIP, MSNPU, XLA, QuantizedCPU, ComplexCPU, ComplexCUDA, Undefined, DnnlCPU, NumOptions };
 
 static inline Backend toSparse(Backend b) {
   switch (b) {
@@ -92,8 +92,8 @@ static inline Backend tensorTypeIdToBackend(TensorTypeId t) {
     return Backend::SparseCUDA;
   } else if (t == TensorTypeId::SparseHIPTensorId) {
     return Backend::SparseHIP;
-  } else if (t == TensorTypeId::MkldnnCPUTensorId) {
-    return Backend::MkldnnCPU;
+  } else if (t == TensorTypeId::DnnlCPUTensorId) {
+    return Backend::DnnlCPU;
   } else if (t == TensorTypeId::QuantizedCPUTensorId) {
     return Backend::QuantizedCPU;
   } else if (t == TensorTypeId::ComplexCPUTensorId) {
@@ -125,8 +125,8 @@ static inline TensorTypeId backendToTensorTypeId(Backend b) {
       return TensorTypeId::SparseCUDATensorId;
     case Backend::SparseHIP:
       return TensorTypeId::SparseHIPTensorId;
-    case Backend::MkldnnCPU:
-      return TensorTypeId::MkldnnCPUTensorId;
+    case Backend::DnnlCPU:
+      return TensorTypeId::DnnlCPUTensorId;
     case Backend::QuantizedCPU:
       return TensorTypeId::QuantizedCPUTensorId;
     case Backend::ComplexCPU:
@@ -158,7 +158,7 @@ static inline DeviceType backendToDeviceType(Backend b) {
       return DeviceType::CUDA;
     case Backend::SparseHIP:
       return DeviceType::HIP;
-    case Backend::MkldnnCPU:
+    case Backend::DnnlCPU:
     case Backend::QuantizedCPU:
     case Backend::ComplexCPU:
       return DeviceType::CPU;
@@ -188,8 +188,8 @@ static inline Backend backendToCPU(Backend b) {
     case Backend::MSNPU:
     case Backend::XLA:
       return Backend::CPU;
-    case Backend::MkldnnCPU:
-      return Backend::MkldnnCPU;
+    case Backend::DnnlCPU:
+      return Backend::DnnlCPU;
     case Backend::QuantizedCPU:
       return Backend::QuantizedCPU;
     case Backend::ComplexCPU:
@@ -262,8 +262,8 @@ static inline const char* toString(Backend b) {
       return "SparseCUDA";
     case Backend::SparseHIP:
       return "SparseHIP";
-    case Backend::MkldnnCPU:
-      return "MkldnnCPU";
+    case Backend::DnnlCPU:
+      return "DnnlCPU";
     case Backend::QuantizedCPU:
       return "QuantizedCPU";
     case Backend::ComplexCPU:

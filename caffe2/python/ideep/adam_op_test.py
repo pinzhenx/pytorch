@@ -12,7 +12,7 @@ from hypothesis import given
 import caffe2.python.ideep_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class TestAdamOps(hu.HypothesisTestCase):
     @given(inputs=hu.tensors(n=4),
            ITER=st.integers(min_value=0, max_value=10000),

@@ -14,7 +14,7 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class FcTest(hu.HypothesisTestCase):
     @given(n=st.integers(1, 5), m=st.integers(1, 5),
            k=st.integers(1, 5), **mu.gcs)

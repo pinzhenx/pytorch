@@ -6,7 +6,7 @@ import platform
 # TODO: refactor & remove the following alias
 caffe2_pb2.CPU = caffe2_pb2.PROTO_CPU
 caffe2_pb2.CUDA = caffe2_pb2.PROTO_CUDA
-caffe2_pb2.MKLDNN = caffe2_pb2.PROTO_MKLDNN
+caffe2_pb2.DNNL = caffe2_pb2.PROTO_DNNL
 caffe2_pb2.OPENGL = caffe2_pb2.PROTO_OPENGL
 caffe2_pb2.OPENCL = caffe2_pb2.PROTO_OPENCL
 caffe2_pb2.IDEEP = caffe2_pb2.PROTO_IDEEP

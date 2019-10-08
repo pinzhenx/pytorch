@@ -13,7 +13,7 @@ import caffe2.python.mkl_test_util as mu
 
 
 @unittest.skipIf(
-    not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn."
+    not workspace.C.has_dnnl, "Skipping as we do not have dnnl."
 )
 class MKLSqueezeTest(hu.HypothesisTestCase):
     @given(

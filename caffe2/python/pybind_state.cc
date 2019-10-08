@@ -1014,14 +1014,14 @@ void addGlobalMethods(py::module& m) {
 
   // The old mkl backend has been removed permanently, but we
   // keep this Python attribute for BC
-  m.attr("has_mkldnn") = py::bool_(false);
+  m.attr("has_dnnl") = py::bool_(false);
 
-  m.attr("use_mkldnn") = py::bool_(
-#ifdef CAFFE2_USE_MKLDNN
+  m.attr("use_dnnl") = py::bool_(
+#ifdef CAFFE2_USE_DNNL
       true
-#else // CAFFE2_USE_MKLDNN
+#else // CAFFE2_USE_DNNL
       false
-#endif // CAFFE2_USE_MKLDNN
+#endif // CAFFE2_USE_DNNL
   );
 
   // if the binary is built with __HIP_PLATFORM_HCC__, this is a ROCm build
@@ -1769,12 +1769,12 @@ void addGlobalMethods(py::module& m) {
   // into a python interface in transformations.py
   // Prefix the transformation with transform_ to avoid clobbering the
   // function namespace.
-  m.def("transform_optimizeForMKLDNN", [](py::bytes def, bool training_mode) {
+  m.def("transform_optimizeForDNNL", [](py::bytes def, bool training_mode) {
     caffe2::NetDef proto;
     CAFFE_ENFORCE(ParseProtoFromLargeString(def.cast<std::string>(), &proto));
 
     auto nn = caffe2::convertToNNModule(proto);
-    opt::OptimizeForMkldnn(&nn, gWorkspace, training_mode);
+    opt::OptimizeForDnnl(&nn, gWorkspace, training_mode);
     auto new_proto = caffe2::convertToCaffe2Proto(nn, proto);
 
     std::string out;

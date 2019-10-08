@@ -268,8 +268,8 @@ class CAFFE2_API Tensor {
   /// Returns if a `Tensor` has sparse backend.
   bool is_sparse() const;
 
-  /// Returns if a `Tensor` is mkldnn tensor.
-  bool is_mkldnn() const;
+  /// Returns if a `Tensor` is dnnl tensor.
+  bool is_dnnl() const;
 
   /// Returns if a `Tensor` has quantized backend.
   bool is_quantized() const;
@@ -682,7 +682,7 @@ class CAFFE2_API Tensor {
   std::vector<Tensor> unbind(int64_t dim=0) const;
   Tensor to_sparse(int64_t sparse_dim) const;
   Tensor to_sparse() const;
-  Tensor to_mkldnn() const;
+  Tensor to_dnnl() const;
   Tensor dequantize() const;
   double q_scale() const;
   int64_t q_zero_point() const;

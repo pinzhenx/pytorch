@@ -2152,9 +2152,9 @@ class Net(object):
 
 
     def RunAllOnMKL(self):
-        """A convenient function to run everything using MKLDNN."""
+        """A convenient function to run everything using DNNL."""
         device_option = caffe2_pb2.DeviceOption()
-        device_option.device_type = caffe2_pb2.MKLDNN
+        device_option.device_type = caffe2_pb2.DNNL
         self._net.device_option.CopyFrom(device_option)
 
     def RunAllOnIDEEP(self):

@@ -48,11 +48,11 @@ void initThroughputBenchmarkBindings(PyObject* module) {
       });
 
 
-  m.def("_enable_mkldnn_conv", []() {
-    at::native::disable_mkldnn_conv.exchange(false);
+  m.def("_enable_dnnl_conv", []() {
+    at::native::disable_dnnl_conv.exchange(false);
   });
-  m.def("_disable_mkldnn_conv", []() {
-    at::native::disable_mkldnn_conv.exchange(true);
+  m.def("_disable_dnnl_conv", []() {
+    at::native::disable_dnnl_conv.exchange(true);
   });
 }
 

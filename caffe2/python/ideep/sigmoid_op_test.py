@@ -11,7 +11,7 @@ from caffe2.python import core, workspace
 import caffe2.python.hypothesis_test_util as hu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class SigmoidTest(hu.HypothesisTestCase):
     @given(X=hu.tensor(dtype=np.float32),
            inplace=st.booleans(),

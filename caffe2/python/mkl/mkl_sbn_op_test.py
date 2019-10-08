@@ -12,8 +12,8 @@ import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.mkl_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn,
-                 "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl,
+                 "Skipping as we do not have dnnl.")
 class MKLSpatialBNTest(hu.HypothesisTestCase):
     @given(size=st.integers(7, 10),
            input_channels=st.integers(1, 10),

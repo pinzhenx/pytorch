@@ -238,7 +238,7 @@ class TestConvolution(serial.SerializedTestCase):
         batch_size=st.integers(0, 3),
         group=st.integers(1, 2),
         order=st.sampled_from(["NCHW", "NHWC"]),
-        engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+        engine=st.sampled_from(["", "CUDNN", "DNNL"]),
         use_bias=st.booleans(),
         force_algo_fwd=_cudnn_convolution_algo_count("fwd"),
         force_algo_dgrad=_cudnn_convolution_algo_count("dgrad"),
@@ -270,7 +270,7 @@ class TestConvolution(serial.SerializedTestCase):
         assume(
             group == 1
             or (order == "NCHW" or gc.device_type == caffe2_pb2.CPU)
-            and engine != "MKLDNN"
+            and engine != "DNNL"
         )
         if group != 1 and order == "NHWC":
             dc = [d for d in dc if d.device_type == caffe2_pb2.CPU]
@@ -289,7 +289,7 @@ class TestConvolution(serial.SerializedTestCase):
                     )
                 )
 
-        assume(engine != "MKLDNN" or use_bias is True)
+        assume(engine != "DNNL" or use_bias is True)
 
         op = core.CreateOperator(
             op_type,

@@ -2766,17 +2766,17 @@ inline Tensor Tensor::to_sparse() const {
     return table->getOp<Tensor (const Tensor &)>(tensorTypeIdToBackend(type_id()), is_variable())(const_cast<Tensor&>(*this));
 #endif
 }
-inline Tensor Tensor::to_mkldnn() const {
+inline Tensor Tensor::to_dnnl() const {
 #ifdef USE_STATIC_DISPATCH
     switch(tensorTypeIdToBackend(type_id())) {
         case Backend::CPU:
-            return CPUType::to_mkldnn(const_cast<Tensor&>(*this));
+            return CPUType::to_dnnl(const_cast<Tensor&>(*this));
             break;
         default:
-            AT_ERROR("to_mkldnn not implemented for ", at::toString(tensorTypeIdToBackend(type_id())));
+            AT_ERROR("to_dnnl not implemented for ", at::toString(tensorTypeIdToBackend(type_id())));
     }
 #else
-    static auto table = globalATenDispatch().getOpTable("aten::to_mkldnn(Tensor self) -> Tensor");
+    static auto table = globalATenDispatch().getOpTable("aten::to_dnnl(Tensor self) -> Tensor");
     return table->getOp<Tensor (const Tensor &)>(tensorTypeIdToBackend(type_id()), is_variable())(const_cast<Tensor&>(*this));
 #endif
 }
@@ -5020,13 +5020,13 @@ inline bool is_sparse(Tensor self) {
   return self.is_sparse();
 }
 
-inline bool Tensor::is_mkldnn() const {
+inline bool Tensor::is_dnnl() const {
   // NB: this is not a native function to avoid dispatching overhead.
-  return impl_->is_mkldnn();
+  return impl_->is_dnnl();
 }
 
-inline bool is_mkldnn(Tensor self) {
-  return self.is_mkldnn();
+inline bool is_dnnl(Tensor self) {
+  return self.is_dnnl();
 }
 
 inline bool Tensor::is_quantized() const {

@@ -39,11 +39,11 @@
 #   BUILD_TEST=0
 #     disables the test build
 #
-#   USE_MKLDNN=0
-#     disables use of MKLDNN
+#   USE_DNNL=0
+#     disables use of DNNL
 #
-#   MKLDNN_THREADING
-#     MKL-DNN threading mode: TBB or OMP (default)
+#   DNNL_THREADING
+#     DNNL threading mode: TBB or OMP (default)
 #
 #   USE_NNPACK=0
 #     disables NNPACK build
@@ -387,14 +387,14 @@ class build_ext(setuptools.command.build_ext.build_ext):
             report('-- Detected CUDA at ' + CUDA_HOME)
         else:
             report('-- Not using CUDA')
-        if cmake_cache_vars['USE_MKLDNN']:
-            report('-- Using MKLDNN')
-            if cmake_cache_vars['USE_MKLDNN_CBLAS']:
-                report('-- Using CBLAS in MKLDNN')
+        if cmake_cache_vars['USE_DNNL']:
+            report('-- Using DNNL')
+            if cmake_cache_vars['USE_DNNL_CBLAS']:
+                report('-- Using CBLAS in DNNL')
             else:
-                report('-- Not using CBLAS in MKLDNN')
+                report('-- Not using CBLAS in DNNL')
         else:
-            report('-- Not using MKLDNN')
+            report('-- Not using DNNL')
         if cmake_cache_vars['USE_NCCL'] and cmake_cache_vars['USE_SYSTEM_NCCL']:
             report('-- Using system provided NCCL library at {}, {}'.format(cmake_cache_vars['NCCL_LIBRARIES'],
                                                                             cmake_cache_vars['NCCL_INCLUDE_DIRS']))

@@ -12,79 +12,79 @@ skipIfNoTorchVision = unittest.skipIf(not HAS_TORCHVISION, "no torchvision")
 
 import torch
 import torch.jit
-from torch.utils import mkldnn as mkldnn_utils
+from torch.utils import dnnl as dnnl_utils
 from common_utils import TestCase, run_tests, TemporaryFileName
 
 from torch.autograd.gradcheck import gradgradcheck, gradcheck
 
 
-# Comment the line below to find out the CI machines having MKL-DNN build disabled
-@unittest.skipIf(not torch._C.has_mkldnn, "MKL-DNN build is disabled")
-class TestMkldnn(TestCase):
+# Comment the line below to find out the CI machines having DNNL build disabled
+@unittest.skipIf(not torch._C.has_dnnl, "DNNL build is disabled")
+class TestDnnl(TestCase):
     def test_conversion(self):
         for cpu_tensor in [torch.randn((1, 2, 3, 4),
                                        dtype=torch.float, device=torch.device('cpu')),
                            torch.randn((1, 2, 3, 4, 5),
                                        dtype=torch.float, device=torch.device('cpu'))[:, :, :, :, 1]]:
             cpu_tensor.requires_grad_()
-            mkldnn_tensor = cpu_tensor.to_mkldnn()
-            cpu_tensor_1 = mkldnn_tensor.to_dense()
+            dnnl_tensor = cpu_tensor.to_dnnl()
+            cpu_tensor_1 = dnnl_tensor.to_dense()
             self.assertEqual(cpu_tensor, cpu_tensor_1)
-            self.assertEqual(mkldnn_tensor.dtype, torch.float)
-            self.assertEqual(mkldnn_tensor.device, torch.device('cpu'))
-            self.assertEqual(mkldnn_tensor.size(), torch.Size([1, 2, 3, 4]))
-            self.assertEqual(mkldnn_tensor.numel(), cpu_tensor.numel())
-            self.assertEqual(mkldnn_tensor.element_size(), cpu_tensor.element_size())
+            self.assertEqual(dnnl_tensor.dtype, torch.float)
+            self.assertEqual(dnnl_tensor.device, torch.device('cpu'))
+            self.assertEqual(dnnl_tensor.size(), torch.Size([1, 2, 3, 4]))
+            self.assertEqual(dnnl_tensor.numel(), cpu_tensor.numel())
+            self.assertEqual(dnnl_tensor.element_size(), cpu_tensor.element_size())
             self.assertRaisesRegex(RuntimeError,
                                    "Cannot access data pointer of Tensor that doesn't have storage",
-                                   lambda: mkldnn_tensor.data_ptr() != 0)
+                                   lambda: dnnl_tensor.data_ptr() != 0)
 
     def test_unsupported(self):
         # unsupported types and unsupported types with gpu
         for dtype in [torch.double, torch.half, torch.uint8, torch.int8,
                       torch.short, torch.int, torch.long]:
             with self.assertRaises(RuntimeError) as context:
-                torch.randn(1, 2, 3, 4, dtype=dtype, device=torch.device('cpu')).to_mkldnn()
+                torch.randn(1, 2, 3, 4, dtype=dtype, device=torch.device('cpu')).to_dnnl()
             if torch.cuda.is_available():
                 with self.assertRaises(RuntimeError) as context:
-                    torch.randn(1, 2, 3, 4, dtype=dtype, device=torch.device('cuda')).to_mkldnn()
+                    torch.randn(1, 2, 3, 4, dtype=dtype, device=torch.device('cuda')).to_dnnl()
         # supported type with gpu
         if torch.cuda.is_available():
             with self.assertRaises(RuntimeError) as context:
-                torch.randn(1, 2, 3, 4, dtype=torch.float, device=torch.device('cuda')).to_mkldnn()
+                torch.randn(1, 2, 3, 4, dtype=torch.float, device=torch.device('cuda')).to_dnnl()
         # some factory functions
         for creator in [torch.ones, torch.randn, torch.rand]:
             with self.assertRaises(RuntimeError) as context:
-                creator(1, 2, 3, 4, dtype=torch.float, device=torch.device('cpu'), layout=torch._mkldnn)
+                creator(1, 2, 3, 4, dtype=torch.float, device=torch.device('cpu'), layout=torch._dnnl)
 
-    def test_autograd_to_mkldnn(self):
-        # MKLDNN only supports float32
+    def test_autograd_to_dnnl(self):
+        # DNNL only supports float32
         root = torch.randn(4, 5, dtype=torch.float32, requires_grad=True)
 
         def func(root):
-            return root.to_mkldnn().to_dense()
+            return root.to_dnnl().to_dense()
 
-        # because MKLDNN only supports float32, we need to lessen the precision.
+        # because DNNL only supports float32, we need to lessen the precision.
         # these numbers are just empirical results that seem to work.
         self.assertWarnsRegex(lambda: gradcheck(func, [root], atol=4e-2, rtol=1e-2),
                               'double precision floating point')
         self.assertWarnsRegex(lambda: gradgradcheck(func, [root], atol=4e-2, rtol=1e-2),
                               'double precision floating point')
 
-    def test_autograd_from_mkldnn(self):
-        # MKLDNN only supports float32
-        root = torch.randn(4, 5, dtype=torch.float32).to_mkldnn().requires_grad_()
+    def test_autograd_from_dnnl(self):
+        # DNNL only supports float32
+        root = torch.randn(4, 5, dtype=torch.float32).to_dnnl().requires_grad_()
 
         def func(root):
             return root.to_dense()
 
-        # because MKLDNN only supports float32, we need to lessen the precision.
+        # because DNNL only supports float32, we need to lessen the precision.
         # these numbers are just empirical results that seem to work.
         self.assertWarnsRegex(lambda: gradcheck(func, [root], atol=4e-2, rtol=1e-2),
                               'double precision floating point')
 
     def test_detach(self):
-        root = torch.randn(4, 5, dtype=torch.float32).to_mkldnn().requires_grad_()
+        root = torch.randn(4, 5, dtype=torch.float32).to_dnnl().requires_grad_()
 
         detach = root.detach()
         self.assertEqual((4, 5), detach.size())
@@ -97,8 +97,8 @@ class TestMkldnn(TestCase):
         self.assertFalse(root.requires_grad)
 
     def test_repr(self):
-        self.assertTrue("layout=torch._mkldnn" in str(torch.randn((1, 2, 3, 4),
-                                                                  dtype=torch.float, device=torch.device('cpu')).to_mkldnn()))
+        self.assertTrue("layout=torch._dnnl" in str(torch.randn((1, 2, 3, 4),
+                                                                  dtype=torch.float, device=torch.device('cpu')).to_dnnl()))
 
     def test_conv2d(self):
         for groups in [1, 4]:
@@ -114,21 +114,21 @@ class TestMkldnn(TestCase):
                                          padding=1,
                                          bias=bias,
                                          groups=groups).float()
-                mkldnn_conv2d = mkldnn_utils.to_mkldnn(copy.deepcopy(conv2d))
+                dnnl_conv2d = dnnl_utils.to_dnnl(copy.deepcopy(conv2d))
                 self.assertEqual(
                     conv2d(x),
-                    mkldnn_conv2d(x.to_mkldnn()).to_dense())
+                    dnnl_conv2d(x.to_dnnl()).to_dense())
 
-                self._test_serialization(mkldnn_conv2d, (x.to_mkldnn(),))
-                self._test_tracing(mkldnn_conv2d, (x.to_mkldnn(),))
+                self._test_serialization(dnnl_conv2d, (x.to_dnnl(),))
+                self._test_tracing(dnnl_conv2d, (x.to_dnnl(),))
 
     def test_relu(self):
         x = torch.randn((4, 5), dtype=torch.float32) * 10
-        self.assertEqual(torch.relu(x), torch.relu(x.to_mkldnn()).to_dense())
+        self.assertEqual(torch.relu(x), torch.relu(x.to_dnnl()).to_dense())
 
     def test_relu_(self):
         x1 = torch.randn((4, 5), dtype=torch.float32) * 10
-        x2 = x1.clone().to_mkldnn()
+        x2 = x1.clone().to_dnnl()
         self.assertEqual(torch.relu_(x1), torch.relu_(x2).to_dense())
 
     def test_max_pool2d(self):
@@ -148,7 +148,7 @@ class TestMkldnn(TestCase):
 
                     self.assertEqual(
                         max_pool2d(x),
-                        max_pool2d(x.to_mkldnn()).to_dense())
+                        max_pool2d(x.to_dnnl()).to_dense())
 
     def test_avg_pool2d(self):
         N = torch.randint(3, 10, (1,)).item()
@@ -164,7 +164,7 @@ class TestMkldnn(TestCase):
 
             self.assertEqual(
                 avg_pool2d(x),
-                avg_pool2d(x.to_mkldnn()).to_dense())
+                avg_pool2d(x.to_dnnl()).to_dense())
 
     def test_adaptive_avg_pool2d(self):
         N = torch.randint(3, 10, (1,)).item()
@@ -175,7 +175,7 @@ class TestMkldnn(TestCase):
 
         self.assertEqual(
             adaptive_avg_pool2d(x),
-            adaptive_avg_pool2d(x.to_mkldnn()).to_dense())
+            adaptive_avg_pool2d(x.to_dnnl()).to_dense())
 
     def test_batch_norm2d(self):
         N = torch.randint(3, 10, (1,)).item()
@@ -185,13 +185,13 @@ class TestMkldnn(TestCase):
         # TODO: support training
         for train in [False]:
             bn = torch.nn.BatchNorm2d(C).float().train(train)
-            mkldnn_bn = mkldnn_utils.to_mkldnn(copy.deepcopy(bn))
+            dnnl_bn = dnnl_utils.to_dnnl(copy.deepcopy(bn))
             self.assertEqual(
                 bn(x),
-                mkldnn_bn(x.to_mkldnn()).to_dense())
+                dnnl_bn(x.to_dnnl()).to_dense())
 
-            self._test_serialization(mkldnn_bn, (x.to_mkldnn(),))
-            self._test_tracing(mkldnn_bn, (x.to_mkldnn(),))
+            self._test_serialization(dnnl_bn, (x.to_dnnl(),))
+            self._test_tracing(dnnl_bn, (x.to_dnnl(),))
 
     def test_add(self):
         N = torch.randint(3, 10, (1,)).item()
@@ -200,8 +200,8 @@ class TestMkldnn(TestCase):
 
         x = torch.randn(N, C, 35, 45, dtype=torch.float32) * 10
         y = torch.randn(N, C, 35, 45, dtype=torch.float32) * 10
-        mx = x.to_mkldnn()
-        my = y.to_mkldnn()
+        mx = x.to_dnnl()
+        my = y.to_dnnl()
 
         # add
         self.assertEqual(
@@ -219,10 +219,10 @@ class TestMkldnn(TestCase):
 
         # add_out
         out = x.clone()
-        mkldnn_out = out.to_mkldnn()
+        dnnl_out = out.to_dnnl()
         torch.add(x, y, alpha=alpha, out=out)
-        torch.add(mx, my, alpha=alpha, out=mkldnn_out)
-        self.assertEqual(out, mkldnn_out.to_dense())
+        torch.add(mx, my, alpha=alpha, out=dnnl_out)
+        self.assertEqual(out, dnnl_out.to_dense())
 
     def test_mul(self):
         N = torch.randint(3, 10, (1,)).item()
@@ -231,8 +231,8 @@ class TestMkldnn(TestCase):
 
         x = torch.randn(N, C, 35, 45, dtype=torch.float32) * 10
         y = torch.randn(N, C, 35, 45, dtype=torch.float32) * 10
-        mx = x.to_mkldnn()
-        my = y.to_mkldnn()
+        mx = x.to_dnnl()
+        my = y.to_dnnl()
 
         # mul
         self.assertEqual(
@@ -262,19 +262,19 @@ class TestMkldnn(TestCase):
 
         # mul_out
         out = x.clone()
-        mkldnn_out = out.to_mkldnn()
+        dnnl_out = out.to_dnnl()
         torch.mul(x, y, out=out)
-        torch.mul(mx, my, out=mkldnn_out)
-        self.assertEqual(out, mkldnn_out.to_dense())
+        torch.mul(mx, my, out=dnnl_out)
+        self.assertEqual(out, dnnl_out.to_dense())
 
         out = x.clone()
-        mkldnn_out = out.to_mkldnn()
+        dnnl_out = out.to_dnnl()
         torch.mul(x, value, out=out)
-        torch.mul(mx, value, out=mkldnn_out)
-        self.assertEqual(out, mkldnn_out.to_dense())
+        torch.mul(mx, value, out=dnnl_out)
+        self.assertEqual(out, dnnl_out.to_dense())
 
     def test_view(self):
-        x = torch.randn(3, 4, 5, dtype=torch.float32).to_mkldnn()
+        x = torch.randn(3, 4, 5, dtype=torch.float32).to_dnnl()
         self.assertRaisesRegex(RuntimeError,
                                "Change to use reshape",
                                lambda: x.view(x.size(0), -1))
@@ -285,10 +285,10 @@ class TestMkldnn(TestCase):
 
         self.assertEqual(
             x.reshape(size),
-            x.to_mkldnn().reshape(size).to_dense(),
+            x.to_dnnl().reshape(size).to_dense(),
         )
         # test whether share same memory for plain format tensor
-        y = x.to_mkldnn()
+        y = x.to_dnnl()
         z = y.reshape(size).add_(y.reshape(size))
         self.assertEqual(
             y.reshape(size).to_dense(),
@@ -299,10 +299,10 @@ class TestMkldnn(TestCase):
         x = torch.randn(4, 5, dtype=torch.float32) * 10
         self.assertEqual(
             x.clone(),
-            x.to_mkldnn().clone().to_dense(),
+            x.to_dnnl().clone().to_dense(),
         )
         # test whether share same memory
-        y = x.to_mkldnn()
+        y = x.to_dnnl()
         z = y.clone().add_(y)
         self.assertNotEqual(
             y.to_dense(),
@@ -315,7 +315,7 @@ class TestMkldnn(TestCase):
             for dim2 in range(x.ndim):
                 self.assertEqual(
                     x.transpose(dim1, dim2),
-                    x.to_mkldnn().transpose(dim1, dim2).to_dense(),
+                    x.to_dnnl().transpose(dim1, dim2).to_dense(),
                 )
 
     def test_linear(self):
@@ -325,13 +325,13 @@ class TestMkldnn(TestCase):
 
         for bias in [True, False]:
             linear = torch.nn.Linear(in_features, out_features, bias=bias).float()
-            mkldnn_linear = mkldnn_utils.to_mkldnn(copy.deepcopy(linear))
+            dnnl_linear = dnnl_utils.to_dnnl(copy.deepcopy(linear))
             self.assertEqual(
                 linear(x),
-                mkldnn_linear(x.to_mkldnn()).to_dense())
+                dnnl_linear(x.to_dnnl()).to_dense())
 
-            self._test_serialization(mkldnn_linear, (x.to_mkldnn(),))
-            self._test_tracing(mkldnn_linear, (x.to_mkldnn(),))
+            self._test_serialization(dnnl_linear, (x.to_dnnl(),))
+            self._test_tracing(dnnl_linear, (x.to_dnnl(),))
 
     def test_softmax(self):
         x = torch.randn(3, 4, 5, dtype=torch.float32) * 10
@@ -339,19 +339,19 @@ class TestMkldnn(TestCase):
             softmax = torch.nn.Softmax(dim=dim)
             self.assertEqual(
                 softmax(x),
-                softmax(x.to_mkldnn()).to_dense())
+                softmax(x.to_dnnl()).to_dense())
 
     def test_sigmoid(self):
         x = torch.randn(4, 5, dtype=torch.float32) * 10
-        mkldnn_x = x.to_mkldnn()
+        dnnl_x = x.to_dnnl()
         self.assertEqual(
             torch.sigmoid(x),
-            torch.sigmoid(mkldnn_x).to_dense(),
+            torch.sigmoid(dnnl_x).to_dense(),
         )
         # inplace
         torch.sigmoid_(x)
-        torch.sigmoid_(mkldnn_x)
-        self.assertEqual(x, mkldnn_x.to_dense())
+        torch.sigmoid_(dnnl_x)
+        self.assertEqual(x, dnnl_x.to_dense())
 
     def _test_serialization(self, module, inputs):
         with TemporaryFileName() as fname:
@@ -368,53 +368,53 @@ class TestMkldnn(TestCase):
             traced(*inputs).to_dense())
 
     def test_set_data_tensorimpl_type(self):
-        # Dense tensor has impl of type `TensorImpl`, while MKL-DNN tensor has impl
+        # Dense tensor has impl of type `TensorImpl`, while DNNL tensor has impl
         # of type `OpaqueTensorImpl<IDeepTensorWrapperPtr>`.
         x = torch.randn((1, 2), dtype=torch.float, device=torch.device('cpu'))
-        x_mkldnn = x.to_mkldnn()
+        x_dnnl = x.to_dnnl()
         with self.assertRaisesRegex(RuntimeError, 'incompatible tensor type'):
-            x.data = x_mkldnn
+            x.data = x_dnnl
 
     def test_empty(self):
         x1 = torch.empty(4, 5, 2, 3, dtype=torch.float32)
-        x2 = torch.empty(4, 5, 2, 3, dtype=torch.float32, layout=torch._mkldnn)
+        x2 = torch.empty(4, 5, 2, 3, dtype=torch.float32, layout=torch._dnnl)
         self.assertEqual(x1.size(), x2.to_dense().size())
         self.assertEqual(x1.dtype, x2.to_dense().dtype)
 
     def test_zero_(self):
         x1 = torch.randn(4, 5, dtype=torch.float32) * 10
-        x2 = x1.clone().to_mkldnn()
+        x2 = x1.clone().to_dnnl()
         self.assertEqual(
             x1.zero_(),
             x2.zero_().to_dense(),
         )
 
-    def test_is_mkldnn(self):
+    def test_is_dnnl(self):
         x = torch.randn(1, dtype=torch.float32)
-        self.assertFalse(x.is_mkldnn)
-        self.assertTrue(x.to_mkldnn().is_mkldnn)
+        self.assertFalse(x.is_dnnl)
+        self.assertTrue(x.to_dnnl().is_dnnl)
 
-    def test_is_mkldnn_jit(self):
-        class EnsureMkldnn(torch.jit.ScriptModule):
+    def test_is_dnnl_jit(self):
+        class EnsureDnnl(torch.jit.ScriptModule):
             @torch.jit.script_method
             def forward(self, x):
-                if not x.is_mkldnn:
-                    x = x.to_mkldnn()
+                if not x.is_dnnl:
+                    x = x.to_dnnl()
                 return x
 
-        m = EnsureMkldnn()
+        m = EnsureDnnl()
         x = torch.randn(1, dtype=torch.float32)
-        self.assertTrue(m(x).is_mkldnn)
-        self.assertTrue(m(x.to_mkldnn()).is_mkldnn)
+        self.assertTrue(m(x).is_dnnl)
+        self.assertTrue(m(x.to_dnnl()).is_dnnl)
 
     def _test_imagenet_model(self, model):
         model = model.train(False).float()
-        mkldnn_model = mkldnn_utils.to_mkldnn(copy.deepcopy(model))
+        dnnl_model = dnnl_utils.to_dnnl(copy.deepcopy(model))
         x = torch.randn(1, 3, 224, 224, dtype=torch.float32)
         with torch.no_grad():
             self.assertEqual(
                 model(x),
-                mkldnn_model(x.to_mkldnn()).to_dense(),
+                dnnl_model(x.to_dnnl()).to_dense(),
             )
 
     @skipIfNoTorchVision

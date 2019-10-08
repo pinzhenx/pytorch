@@ -1,8 +1,8 @@
-#include <ATen/native/mkldnn/MKLDNNCommon.h>
+#include <ATen/native/dnnl/DNNLCommon.h>
 #include <ATen/OpaqueTensorImpl.h>
 #include <c10/core/Allocator.h>
 
-#if AT_MKLDNN_ENABLED()
+#if AT_DNNL_ENABLED()
 
 #include <ideep.hpp>
 
@@ -37,24 +37,24 @@ public:
 
 using IDeepTensorWrapper = IntrusivePtrTargetWrapper<ideep::tensor>;
 using IDeepTensorWrapperPtr = c10::intrusive_ptr<IDeepTensorWrapper>;
-using MKLDNNTensorImpl = OpaqueTensorImpl<IDeepTensorWrapperPtr>;
-using MKLDNNTensor = Tensor;
+using DNNLTensorImpl = OpaqueTensorImpl<IDeepTensorWrapperPtr>;
+using DNNLTensor = Tensor;
 
-Tensor new_with_itensor_mkldnn(ideep::tensor&& it, const TensorOptions& options) {
+Tensor new_with_itensor_dnnl(ideep::tensor&& it, const TensorOptions& options) {
   // NOTE: int32_t dims from ideep::tensor but sizes needs int64_t
   // TODO: support int64_t dims in ideep::tensor to avoid extra conversion
   auto dims = it.get_dims();
   IDeepTensorWrapperPtr handle = c10::make_intrusive<IDeepTensorWrapper>(std::move(it));
-  return detail::make_tensor<MKLDNNTensorImpl>(
-    TensorTypeId::MkldnnCPUTensorId, options.dtype(), options.device(), handle,
+  return detail::make_tensor<DNNLTensorImpl>(
+    TensorTypeId::DnnlCPUTensorId, options.dtype(), options.device(), handle,
     std::vector<int64_t>(dims.begin(), dims.end()));
 }
 
-ideep::tensor& itensor_from_mkldnn(const MKLDNNTensor& mkldnn_tensor) {
-  AT_ASSERTM(mkldnn_tensor.is_mkldnn(),
-             "mkldnn_to_dense expects MKL-DNN tensor input");
-  AT_ASSERTM(!mkldnn_tensor.is_variable(), "_internal_get_MKLDNNImpl: should not be a variable");
-  MKLDNNTensorImpl *mklimpl = static_cast<MKLDNNTensorImpl *>(mkldnn_tensor.unsafeGetTensorImpl());
+ideep::tensor& itensor_from_dnnl(const DNNLTensor& dnnl_tensor) {
+  AT_ASSERTM(dnnl_tensor.is_dnnl(),
+             "dnnl_to_dense expects DNNL tensor input");
+  AT_ASSERTM(!dnnl_tensor.is_variable(), "_internal_get_DNNLImpl: should not be a variable");
+  DNNLTensorImpl *mklimpl = static_cast<DNNLTensorImpl *>(dnnl_tensor.unsafeGetTensorImpl());
   return mklimpl->unsafe_opaque_handle()->get_target();
 }
 
@@ -76,4 +76,4 @@ ideep::tensor itensor_view_from_dense(const Tensor& tensor) {
 }
 }}
 
-#endif // AT_MKLDNN_ENABLED()
+#endif // AT_DNNL_ENABLED()

@@ -733,7 +733,7 @@ PyObject* initModule() {
 #endif
   ASSERT_TRUE(set_module_attr("has_cuda", has_cuda));
 
-  ASSERT_TRUE(set_module_attr("has_mkldnn", at::hasMKLDNN() ? Py_True : Py_False));
+  ASSERT_TRUE(set_module_attr("has_dnnl", at::hasDNNL() ? Py_True : Py_False));
 
 #ifdef _GLIBCXX_USE_CXX11_ABI
   ASSERT_TRUE(set_module_attr("_GLIBCXX_USE_CXX11_ABI", _GLIBCXX_USE_CXX11_ABI ? Py_True : Py_False));

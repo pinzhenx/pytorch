@@ -11,12 +11,12 @@ import numpy as np
 import math
 from caffe2.proto import caffe2_pb2
 from caffe2.python import core, workspace
-from caffe2.python.transformations import optimizeForMKLDNN
+from caffe2.python.transformations import optimizeForDNNL
 import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class ConvFusionTest(hu.HypothesisTestCase):
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
@@ -104,7 +104,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('b0', b, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 1)
         self.assertTrue(net.Proto().op[0].type == "ConvFusion")
         workspace.RunOperatorOnce(net.Proto().op[0])
@@ -236,7 +236,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('b0', b, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 2)
         self.assertTrue(net.Proto().op[1].type == "ConvFusion")
         workspace.RunNetOnce(net.Proto())
@@ -259,7 +259,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         old_net.op.extend([conv_old, pool_S0_old, sum_old])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 2)
         self.assertTrue(net.Proto().op[1].type == "ConvFusion")
         workspace.RunNetOnce(net.Proto())
@@ -291,7 +291,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         old_net.op.extend([conv_old, dropout, pool_S0_old, sum_old])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 4)
         workspace.RunNetOnce(net.Proto())
         S2 = workspace.FetchBlob(net.Proto().op[-1].output[0])
@@ -326,7 +326,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         old_net.op.extend([conv_old, pool_S0_old, sum1, dropout])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         print("net={}\n".format(net.Proto()))
         self.assertTrue(len(net.Proto().op) == 4)
         workspace.RunNetOnce(net.Proto())
@@ -418,7 +418,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         old_net.op.extend([relu_0_old, conv_old, relu_1_old, pool_old, sum_old])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 5)
         workspace.RunNetOnce(net.Proto())
         S2 = workspace.FetchBlob(net.Proto().op[-1].output[0])
@@ -565,7 +565,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('b0', b, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 2)
         self.assertTrue(net.Proto().op[1].type == "ConvFusion")
         workspace.RunNetOnce(net.Proto())
@@ -676,7 +676,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('b0', b, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         workspace.RunNetOnce(net.Proto())
         # The output tensor name will be changed by optimization
         # sometimes when applying conv sum fusion
@@ -764,7 +764,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('var', var, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 1)
         self.assertTrue(net.Proto().op[0].type == "Conv")
         workspace.RunOperatorOnce(net.Proto().op[0])
@@ -845,7 +845,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
         workspace.FeedBlob('bias', bias, dc[1])
         net = core.Net("net")
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         self.assertTrue(len(net.Proto().op) == 1)
         self.assertTrue(net.Proto().op[0].type == "Conv")
         workspace.RunOperatorOnce(net.Proto().op[0])

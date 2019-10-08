@@ -9,11 +9,11 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import cnn, core, workspace, test_util
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl, "Skipping as we do not have dnnl.")
 class TestMKLBasic(test_util.TestCase):
     def testReLUSpeed(self):
         X = np.random.randn(128, 4096).astype(np.float32)
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("X_mkl", X, device_option=mkl_do)
@@ -50,7 +50,7 @@ class TestMKLBasic(test_util.TestCase):
         X = np.random.rand(1, 256, 27, 27).astype(np.float32) - 0.5
         W = np.random.rand(192, 256, 3, 3).astype(np.float32) - 0.5
         b = np.random.rand(192).astype(np.float32) - 0.5
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("W", W)

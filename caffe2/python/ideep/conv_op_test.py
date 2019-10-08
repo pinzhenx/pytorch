@@ -9,11 +9,11 @@ from hypothesis import given, settings
 import numpy as np
 from caffe2.proto import caffe2_pb2
 from caffe2.python import core, workspace
-from caffe2.python.transformations import optimizeForMKLDNN
+from caffe2.python.transformations import optimizeForDNNL
 import caffe2.python.hypothesis_test_util as hu
 import caffe2.python.ideep_test_util as mu
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class ConvTest(hu.HypothesisTestCase):
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
@@ -133,7 +133,7 @@ class ConvTest(hu.HypothesisTestCase):
         old_net = caffe2_pb2.NetDef()
         old_net.op.extend([op1])
         net.Proto().CopyFrom(old_net)
-        optimizeForMKLDNN(net)
+        optimizeForDNNL(net)
         workspace.RunOperatorOnce(net.Proto().op[0])
         Y1 = workspace.FetchBlob('Y')
 

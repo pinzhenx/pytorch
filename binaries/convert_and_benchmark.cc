@@ -468,7 +468,7 @@ void setOperatorEngine(caffe2::NetDef* net_def, const string& backend) {
     } else if ( backend == "eigen" ) {
       engine = "EIGEN";
     } else if ( backend == "mkl" ) {
-      engine = "MKLDNN";
+      engine = "DNNL";
     } else if ( backend == "cuda" ) {
       engine = "CUDA";
     } else if ( backend == "dnnlowp" ) {

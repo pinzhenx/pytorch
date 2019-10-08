@@ -5,12 +5,12 @@
 #include <tuple>
 
 
-#if !AT_MKLDNN_ENABLED()
+#if !AT_DNNL_ENABLED()
 
 namespace at {
 namespace native {
 
-Tensor mkldnn_max_pool2d(
+Tensor dnnl_max_pool2d(
     const Tensor& self,
     IntArrayRef kernel_size,
     IntArrayRef stride,
@@ -18,10 +18,10 @@ Tensor mkldnn_max_pool2d(
     IntArrayRef dilation,
     bool ceil_mode) {
   AT_ERROR(
-      "mkldnn_max_pool2d: ATen not compiled with MKLDNN support");
+      "dnnl_max_pool2d: ATen not compiled with DNNL support");
 }
 
-Tensor mkldnn_avg_pool2d(
+Tensor dnnl_avg_pool2d(
     const Tensor& self,
     IntArrayRef kernel_size,
     IntArrayRef stride,
@@ -29,10 +29,10 @@ Tensor mkldnn_avg_pool2d(
     bool ceil_mode,
     bool count_include_pad,
     c10::optional<int64_t> divisor_override) {
-  AT_ERROR("mkldnn_avg_pool2d: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_avg_pool2d: ATen not compiled with DNNL support");
 }
 
-Tensor& mkldnn_avg_pool2d_out(
+Tensor& dnnl_avg_pool2d_out(
     Tensor& output,
     const Tensor& self,
     IntArrayRef kernel_size,
@@ -41,33 +41,33 @@ Tensor& mkldnn_avg_pool2d_out(
     bool ceil_mode,
     bool count_include_pad,
     c10::optional<int64_t> divisor_override) {
-  AT_ERROR("mkldnn_avg_pool2d_out: ATen not compiled with MKLDNN support");
+  AT_ERROR("dnnl_avg_pool2d_out: ATen not compiled with DNNL support");
 }
 
-Tensor mkldnn_adaptive_avg_pool2d(Tensor const& input, IntArrayRef output_size) {
-  AT_ERROR("mkldnn_adaptive_avg_pool2d: ATen not compiled with MKLDNN support");
+Tensor dnnl_adaptive_avg_pool2d(Tensor const& input, IntArrayRef output_size) {
+  AT_ERROR("dnnl_adaptive_avg_pool2d: ATen not compiled with DNNL support");
 }
 
-Tensor& mkldnn_adaptive_avg_pool2d_out(
+Tensor& dnnl_adaptive_avg_pool2d_out(
     Tensor& output,
     const Tensor& input,
     IntArrayRef output_size) {
   AT_ERROR(
-      "mkldnn_adaptive_avg_pool2d_out: ATen not compiled with MKLDNN support");
+      "dnnl_adaptive_avg_pool2d_out: ATen not compiled with DNNL support");
 }
 
 } // namespace native
 } // namespace at
 
-#else // AT_MKLDNN_ENABLED
+#else // AT_DNNL_ENABLED
 
-#include <ATen/native/mkldnn/MKLDNNCommon.h>
-#include <ATen/native/mkldnn/Utils.h>
+#include <ATen/native/dnnl/DNNLCommon.h>
+#include <ATen/native/dnnl/Utils.h>
 
 namespace at {
 namespace native {
 
-static Tensor _mkldnn_pool2d(
+static Tensor _dnnl_pool2d(
     const Tensor& input,
     IntArrayRef kernel_size,
     IntArrayRef stride,
@@ -82,11 +82,11 @@ static Tensor _mkldnn_pool2d(
   auto padding_vec_r = padding_vec;
   auto dilation_vec = expand_param_if_needed(dilation, "dilation", 2);
 
-  const ideep::tensor& x = itensor_from_mkldnn(input);
+  const ideep::tensor& x = itensor_from_dnnl(input);
   std::vector<int64_t> output_sizes;
 
   if (ceil_mode) {
-    // MKLDNN does not support ceil mode, so we adjust padding
+    // DNNL does not support ceil mode, so we adjust padding
     // on the right side to match behavior. Adjust output size
     // accordingly.
     const std::vector<int64_t> output_sizes_ceil = pool_output_sizes(
@@ -130,7 +130,7 @@ static Tensor _mkldnn_pool2d(
   }
 
   ideep::tensor y;
-  ideep::pooling_forward::compute<AllocForMKLDNN>(
+  ideep::pooling_forward::compute<AllocForDNNL>(
       x,
       {output_sizes.cbegin(), output_sizes.cend()},
       y,
@@ -141,17 +141,17 @@ static Tensor _mkldnn_pool2d(
       algo,
       ideep::prop_kind::forward);
 
-  return new_with_itensor_mkldnn(std::move(y), input.options());
+  return new_with_itensor_dnnl(std::move(y), input.options());
 }
 
-Tensor mkldnn_max_pool2d(
+Tensor dnnl_max_pool2d(
     const Tensor& input,
     IntArrayRef kernel_size,
     IntArrayRef stride,
     IntArrayRef padding,
     IntArrayRef dilation,
     bool ceil_mode) {
-  return _mkldnn_pool2d(
+  return _dnnl_pool2d(
       input,
       kernel_size,
       stride,
@@ -161,7 +161,7 @@ Tensor mkldnn_max_pool2d(
       ideep::algorithm::pooling_max);
 }
 
-Tensor mkldnn_avg_pool2d(
+Tensor dnnl_avg_pool2d(
     const Tensor& input,
     IntArrayRef kernel_size,
     IntArrayRef stride,
@@ -170,8 +170,8 @@ Tensor mkldnn_avg_pool2d(
     bool count_include_pad,
     c10::optional<int64_t> divisor_override) {
   TORCH_CHECK(!divisor_override.has_value(),
-           "mkldnn_avg_pool2d operator does not support divisor");
-  return _mkldnn_pool2d(
+           "dnnl_avg_pool2d operator does not support divisor");
+  return _dnnl_pool2d(
       input,
       kernel_size,
       stride,
@@ -182,7 +182,7 @@ Tensor mkldnn_avg_pool2d(
                         : ideep::algorithm::pooling_avg_exclude_padding);
 }
 
-Tensor& mkldnn_avg_pool2d_out(
+Tensor& dnnl_avg_pool2d_out(
     Tensor& output,
     const Tensor& input,
     IntArrayRef kernel_size,
@@ -192,13 +192,13 @@ Tensor& mkldnn_avg_pool2d_out(
     bool count_include_pad,
     c10::optional<int64_t> divisor_override) {
   AT_ERROR(
-      "mkldnn_avg_pool2d_out: in-place mkldnn operations are not supported yet");
+      "dnnl_avg_pool2d_out: in-place dnnl operations are not supported yet");
 }
 
-Tensor mkldnn_adaptive_avg_pool2d(
+Tensor dnnl_adaptive_avg_pool2d(
     Tensor const& input,
     IntArrayRef output_size) {
-  AT_ASSERTM(input.dim() == 4, "mkldnn_adaptive_avg_pool2d: Expect 2D input");
+  AT_ASSERTM(input.dim() == 4, "dnnl_adaptive_avg_pool2d: Expect 2D input");
 
   auto output_size_vec =
       expand_param_if_needed(output_size, "output_size", input.dim() - 2);
@@ -212,7 +212,7 @@ Tensor mkldnn_adaptive_avg_pool2d(
         "input size is not divisible by the output size is not supported yet");
     kernel_size[i - 2] = s1 / s2;
   }
-  return _mkldnn_pool2d(
+  return _dnnl_pool2d(
       input,
       kernel_size,
       /*stride*/ kernel_size,
@@ -222,16 +222,16 @@ Tensor mkldnn_adaptive_avg_pool2d(
       /*algo*/ ideep::algorithm::pooling_avg);
 }
 
-Tensor& mkldnn_adaptive_avg_pool2d_out(
+Tensor& dnnl_adaptive_avg_pool2d_out(
     Tensor& output,
     const Tensor& input,
     IntArrayRef output_size) {
   AT_ERROR(
-      "mkldnn_adaptive_avg_pool2d_out: in-place mkldnn operations are not supported yet");
+      "dnnl_adaptive_avg_pool2d_out: in-place dnnl operations are not supported yet");
 }
 
 
 } // namespace native
 } // namespace at
 
-#endif // AT_MKLDNN_ENABLED
+#endif // AT_DNNL_ENABLED

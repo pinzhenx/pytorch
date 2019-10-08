@@ -33,12 +33,12 @@ void initializeLayouts() {
   registerLayoutObject((THPLayout*)sparse_coo_layout, at::Backend::SparseCPU);
   registerLayoutObject((THPLayout*)sparse_coo_layout, at::Backend::SparseCUDA);
 
-  PyObject *mkldnn_layout = THPLayout_New(at::Layout::Mkldnn, "torch._mkldnn");
-  Py_INCREF(mkldnn_layout);
-  if (PyModule_AddObject(torch_module, "_mkldnn", mkldnn_layout) != 0) {
+  PyObject *dnnl_layout = THPLayout_New(at::Layout::Dnnl, "torch._dnnl");
+  Py_INCREF(dnnl_layout);
+  if (PyModule_AddObject(torch_module, "_dnnl", dnnl_layout) != 0) {
     throw python_error();
   }
-  registerLayoutObject((THPLayout*)mkldnn_layout, at::Backend::MkldnnCPU);
+  registerLayoutObject((THPLayout*)dnnl_layout, at::Backend::DnnlCPU);
   registerLayoutObject((THPLayout*)strided_layout, at::Backend::ComplexCPU);
   registerLayoutObject((THPLayout*)strided_layout, at::Backend::ComplexCUDA);
 }

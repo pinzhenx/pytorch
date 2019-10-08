@@ -47,10 +47,10 @@ Build options
 -------------
 
 PyTorch uses an internal ATen library to implement ops. In addition to that,
-PyTorch can also be built with support of external libraries, such as MKL_ and MKL-DNN_,
+PyTorch can also be built with support of external libraries, such as MKL_ and DNNL_,
 to speed up computations on CPU.
 
-ATen, MKL and MKL-DNN support intra-op parallelism and depend on the
+ATen, MKL and DNNL support intra-op parallelism and depend on the
 following parallelization libraries to implement it:
  * OpenMP_ - a standard (and a library, usually shipped with a compiler), widely used in external libraries;
  * TBB_ - a newer parallelization library optimized for task-based parallelism and concurrent environments.
@@ -80,7 +80,7 @@ libraries at the build time with the following build options:
 +------------+-----------------------+-----------------------------+----------------------------------------+
 | MKL        | ``MKL_THREADING``     | (same)                      | To enable MKL use ``BLAS=MKL``         |
 +------------+-----------------------+-----------------------------+----------------------------------------+
-| MKL-DNN    | ``MKLDNN_THREADING``  | (same)                      | To enable MKL-DNN use ``USE_MKLDNN=1`` |
+| DNNL    | ``DNNL_THREADING``  | (same)                      | To enable DNNL use ``USE_DNNL=1`` |
 +------------+-----------------------+-----------------------------+----------------------------------------+
 
 It is strongly recommended not to mix OpenMP and TBB within one build.
@@ -121,4 +121,4 @@ over environment variables, ``MKL_NUM_THREADS`` variable takes precedence over `
 .. _OpenMP: https://www.openmp.org/
 .. _TBB: https://github.com/intel/tbb
 .. _MKL: https://software.intel.com/en-us/mkl
-.. _MKL-DNN: https://github.com/intel/mkl-dnn
+.. _DNNL: https://github.com/intel/dnnl

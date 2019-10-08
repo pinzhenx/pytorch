@@ -53,7 +53,7 @@ class CAFFE2_API Context {
   bool hasOpenMP() const;
   bool hasMKL() const;
   bool hasLAPACK() const;
-  bool hasMKLDNN() const;
+  bool hasDNNL() const;
   bool hasMAGMA() const {
     return detail::getCUDAHooks().hasMAGMA();
   }
@@ -199,8 +199,8 @@ static inline bool hasMAGMA() {
   return globalContext().hasMAGMA();
 }
 
-static inline bool hasMKLDNN() {
-  return globalContext().hasMKLDNN();
+static inline bool hasDNNL() {
+  return globalContext().hasDNNL();
 }
 
 static inline void manual_seed(uint64_t seed) {

@@ -322,8 +322,8 @@ namespace {
   }
 
   Tensor adaptive_avg_pool2d(at::Tensor const& input, IntArrayRef output_size) {
-    if (input.is_mkldnn()) {
-      return at::mkldnn_adaptive_avg_pool2d(input, output_size);
+    if (input.is_dnnl()) {
+      return at::dnnl_adaptive_avg_pool2d(input, output_size);
     }
 
     if (!input.is_quantized() && output_size[0] == 1 && output_size[1] == 1) {

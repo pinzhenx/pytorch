@@ -411,7 +411,7 @@ class TestWorkspaceGPU(test_util.TestCase):
         self.assertEqual(torch.cuda.memory_allocated(), initial_mem)
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class TestWorkspaceIDEEP(test_util.TestCase):
 
     def testFeedFetchBlobIDEEP(self):

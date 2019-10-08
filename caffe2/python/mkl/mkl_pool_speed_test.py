@@ -9,14 +9,14 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import cnn, core, workspace, test_util
 
 
-@unittest.skipIf(not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn.")
+@unittest.skipIf(not workspace.C.has_dnnl, "Skipping as we do not have dnnl.")
 class TestMKLBasic(test_util.TestCase):
     def testMaxPoolingSpeed(self):
         # We randomly select a shape to test the speed. Intentionally we
         # test a batch size of 1 since this may be the most frequent use
         # case for MKL during deployment time.
         X = np.random.rand(1, 64, 224, 224).astype(np.float32)
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("X_mkl", X, device_option=mkl_do)
@@ -42,7 +42,7 @@ class TestMKLBasic(test_util.TestCase):
         # test a batch size of 1 since this may be the most frequent use
         # case for MKL during deployment time.
         X = np.random.rand(1, 64, 224, 224).astype(np.float32)
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("X_mkl", X, device_option=mkl_do)
@@ -71,7 +71,7 @@ class TestMKLBasic(test_util.TestCase):
         W = np.random.rand(64, 3, 11, 11).astype(np.float32) - 0.5
         b = np.random.rand(64).astype(np.float32) - 0.5
 
-        mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
+        mkl_do = core.DeviceOption(caffe2_pb2.DNNL)
         # Makes sure that feed works.
         workspace.FeedBlob("X", X)
         workspace.FeedBlob("W", W)

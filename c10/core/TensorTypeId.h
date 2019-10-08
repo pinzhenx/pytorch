@@ -13,7 +13,7 @@ enum class TensorTypeId : uint8_t {
   CUDATensorId, // PyTorch/Caffe2 supported
   SparseCPUTensorId, // PyTorch only
   SparseCUDATensorId, // PyTorch only
-  MKLDNNTensorId, // Caffe2 only
+  DNNLTensorId, // Caffe2 only
   OpenGLTensorId, // Caffe2 only
   OpenCLTensorId, // Caffe2 only
   IDEEPTensorId, // Caffe2 only
@@ -21,7 +21,7 @@ enum class TensorTypeId : uint8_t {
   SparseHIPTensorId, // PyTorch only
   MSNPUTensorId, // PyTorch only
   XLATensorId, // PyTorch only
-  MkldnnCPUTensorId,
+  DnnlCPUTensorId,
   QuantizedCPUTensorId, // PyTorch only
   ComplexCPUTensorId, // PyTorch only
   ComplexCUDATensorId // PyTorch only

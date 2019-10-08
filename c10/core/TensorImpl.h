@@ -439,8 +439,8 @@ struct C10_API TensorImpl : public c10::intrusive_ptr_target {
     return tid == TensorTypeId::HIPTensorId || tid == TensorTypeId::SparseHIPTensorId;
   }
 
-  bool is_mkldnn() const {
-    return type_id() == TensorTypeId::MkldnnCPUTensorId;
+  bool is_dnnl() const {
+    return type_id() == TensorTypeId::DnnlCPUTensorId;
   }
 
   int64_t get_device() const {
@@ -465,8 +465,8 @@ struct C10_API TensorImpl : public c10::intrusive_ptr_target {
     // NB: This method is not virtual and avoid dispatches for perf.
     if (is_sparse()) {
       return kSparse;
-    } else if (is_mkldnn()) {
-      return kMkldnn;
+    } else if (is_dnnl()) {
+      return kDnnl;
     } else {
       return kStrided;
     }

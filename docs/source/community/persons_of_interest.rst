@@ -90,7 +90,7 @@ CUDA
 -  Edward Yang (`ezyang <https://github.com/ezyang>`__)
 -  Xiaoqiang Zheng (`zheng-xq <https://github.com/zheng-xq>`__)
 
-MKLDNN
+DNNL
 ~~~~~~
 
 -  Junjie Bai (`bddppq <https://github.com/bddppq>`__)

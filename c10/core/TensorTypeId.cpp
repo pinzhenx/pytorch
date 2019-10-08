@@ -14,8 +14,8 @@ const char* toString(TensorTypeId t) {
       return "SparseCPUTensorId";
     case TensorTypeId::SparseCUDATensorId:
       return "SparseCUDATensorId";
-    case TensorTypeId::MKLDNNTensorId:
-      return "MKLDNNTensorId";
+    case TensorTypeId::DNNLTensorId:
+      return "DNNLTensorId";
     case TensorTypeId::OpenGLTensorId:
       return "OpenGLTensorId";
     case TensorTypeId::OpenCLTensorId:
@@ -30,8 +30,8 @@ const char* toString(TensorTypeId t) {
       return "MSNPUTensorId";
     case TensorTypeId::XLATensorId:
       return "XLATensorId";
-    case TensorTypeId::MkldnnCPUTensorId:
-      return "MkldnnCPUTensorId";
+    case TensorTypeId::DnnlCPUTensorId:
+      return "DnnlCPUTensorId";
     case TensorTypeId::QuantizedCPUTensorId:
       return "QuantizedCPUTensorId";
     case TensorTypeId::ComplexCPUTensorId:

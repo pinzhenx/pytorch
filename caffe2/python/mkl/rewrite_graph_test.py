@@ -180,7 +180,7 @@ def complex_resnet():
     return model, [(1, 1, 224, 224)]
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class MKLRewriteTest(hu.HypothesisTestCase):
     @given(gen=st.sampled_from([simple_relu, simple_fc,
                                 simple_mlp, simple_cnn]))

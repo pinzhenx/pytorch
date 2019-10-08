@@ -19,9 +19,9 @@ from caffe2.python import hypothesis_test_util as hu
 
 cpu_do = hu.cpu_do
 gpu_do = hu.gpu_do
-mkl_do = caffe2_pb2.DeviceOption(device_type=caffe2_pb2.MKLDNN)
+mkl_do = caffe2_pb2.DeviceOption(device_type=caffe2_pb2.DNNL)
 device_options = hu.device_options + (
-    [mkl_do] if workspace.C.has_mkldnn else [])
+    [mkl_do] if workspace.C.has_dnnl else [])
 
 
 def device_checker_device_options():

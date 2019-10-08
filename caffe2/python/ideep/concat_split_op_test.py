@@ -45,7 +45,7 @@ def _tensor_splits(draw, add_axis=False):
         )
 
 
-@unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
+@unittest.skipIf(not workspace.C.use_dnnl, "No DNNL support.")
 class TestConcatSplitOps(hu.HypothesisTestCase):
     @given(tensor_splits=_tensor_splits(),
            **mu.gcs)

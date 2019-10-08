@@ -5,8 +5,8 @@
 #include <mkl.h>
 #endif
 
-#if AT_MKLDNN_ENABLED()
-#include <mkldnn.hpp>
+#if AT_DNNL_ENABLED()
+#include <dnnl.hpp>
 #include <ideep.hpp>
 #endif
 
@@ -32,20 +32,20 @@ std::string get_mkl_version() {
   return version;
 }
 
-std::string get_mkldnn_version() {
+std::string get_dnnl_version() {
   std::ostringstream ss;
-  #if AT_MKLDNN_ENABLED()
-    // Cribbed from mkl-dnn/src/common/verbose.cpp
+  #if AT_DNNL_ENABLED()
+    // Cribbed from dnnl/src/common/verbose.cpp
     // Too bad: can't get ISA info conveniently :(
     // Apparently no way to get ideep version?
     // https://github.com/intel/ideep/issues/29
     {
-      const mkldnn_version_t* ver = mkldnn_version();
-      ss << "Intel(R) MKL-DNN v" << ver->major << "." << ver->minor << "." << ver->patch
+      const dnnl_version_t* ver = dnnl_version();
+      ss << "Intel(R) DNNL v" << ver->major << "." << ver->minor << "." << ver->patch
          << " (Git Hash " << ver->hash << ")";
     }
   #else
-    ss << "MKLDNN not found";
+    ss << "DNNL not found";
   #endif
   return ss.str();
 }
@@ -117,8 +117,8 @@ std::string show_config() {
   ss << "  - " << get_mkl_version() << "\n";
 #endif
 
-#if AT_MKLDNN_ENABLED()
-  ss << "  - " << get_mkldnn_version() << "\n";
+#if AT_DNNL_ENABLED()
+  ss << "  - " << get_dnnl_version() << "\n";
 #endif
 
 #ifdef _OPENMP

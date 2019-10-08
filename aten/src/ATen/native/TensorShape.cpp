@@ -477,8 +477,8 @@ Tensor reshape(const Tensor& self, IntArrayRef proposed_shape) {
   }
   auto shape = infer_size(proposed_shape, self.numel());
 
-  if (self.is_mkldnn()) {
-    return at::_mkldnn_reshape(self, shape);
+  if (self.is_dnnl()) {
+    return at::_dnnl_reshape(self, shape);
   }
 
   if (auto stride = THTensor_compute_stride(self.sizes(), self.strides(), shape)) {
@@ -820,8 +820,8 @@ Tensor & transpose_(Tensor & self, int64_t dim0, int64_t dim1) {
     return sparse_transpose_(self, dim0, dim1);
   }
 
-  if (self.is_mkldnn()) {
-    return at::_mkldnn_transpose_(self, dim0, dim1);
+  if (self.is_dnnl()) {
+    return at::_dnnl_transpose_(self, dim0, dim1);
   }
 
   auto strides = self.strides().vec();
@@ -844,8 +844,8 @@ Tensor transpose(const Tensor & self, int64_t dim0, int64_t dim1) {
     return sparse_transpose_(self_clone, dim0, dim1);
   }
 
-  if (self.is_mkldnn()) {
-    return at::_mkldnn_transpose(self, dim0, dim1);
+  if (self.is_dnnl()) {
+    return at::_dnnl_transpose(self, dim0, dim1);
   }
 
   auto strides = self.strides().vec();
