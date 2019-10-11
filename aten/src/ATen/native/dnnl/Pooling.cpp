@@ -129,17 +129,17 @@ static Tensor _dnnl_pool2d(
         false /*ceil_mode */);
   }
 
-  ideep::tensor y;
-  ideep::pooling_forward::compute<AllocForDNNL>(
+  // XPZ: TODO: forward training?
+  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32};
+  ideep::pooling_forward::compute(
       x,
-      {output_sizes.cbegin(), output_sizes.cend()},
       y,
-      {stride_vec.cbegin(), stride_vec.cend()},
-      {kernel_size_vec.cbegin(), kernel_size_vec.cend()},
-      {padding_vec_l.cbegin(), padding_vec_l.cend()},
-      {padding_vec_r.cbegin(), padding_vec_r.cend()},
+      stride_vec,
+      kernel_size_vec,
+      padding_vec_l,
+      padding_vec_r,
       algo,
-      ideep::prop_kind::forward);
+      ideep::prop_kind::forward_inference);
 
   return new_with_itensor_dnnl(std::move(y), input.options());
 }
@@ -176,7 +176,7 @@ Tensor dnnl_avg_pool2d(
       kernel_size,
       stride,
       padding,
-      /*dilation*/ std::vector<int64_t>{1, 1},
+      /*dilation*/ {1, 1},
       ceil_mode,
       count_include_pad ? ideep::algorithm::pooling_avg_include_padding
                         : ideep::algorithm::pooling_avg_exclude_padding);

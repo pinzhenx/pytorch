@@ -24,16 +24,17 @@ Tensor& dnnl_relu_(Tensor& input) {
 namespace at { namespace native {
 
 Tensor dnnl_relu(const Tensor& input) {
-  const ideep::tensor& x = itensor_from_dnnl(input);
+  auto& x = itensor_from_dnnl(input);
   ideep::tensor y;
-  ideep::eltwise_forward::compute<AllocForDNNL>(
+  y.reinit_like(x);
+  ideep::eltwise_forward::compute(
       x, y, ideep::algorithm::eltwise_relu, ideep::prop_kind::forward_training, /*alpha*/ 0.0);
   return new_with_itensor_dnnl(std::move(y), input.options());
 }
 
 Tensor& dnnl_relu_(Tensor& input) {
-  ideep::tensor& x = itensor_from_dnnl(input);
-  ideep::eltwise_forward::compute<AllocForDNNL>(
+  auto& x = itensor_from_dnnl(input);
+  ideep::eltwise_forward::compute(
       x, x, ideep::algorithm::eltwise_relu, ideep::prop_kind::forward_training, /*alpha*/ 0.0);
   return input;
 }
