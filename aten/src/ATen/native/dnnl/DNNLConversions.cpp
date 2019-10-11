@@ -32,9 +32,9 @@ Tensor dense_to_dnnl(const Tensor& cpu_tensor) {
   auto cpu_tensor_cont = cpu_tensor.contiguous();
   Tensor dnnl_tensor = empty_dnnl(cpu_tensor_cont.sizes(), cpu_tensor_cont.options());
   ideep::tensor& dtensor = itensor_from_dnnl(dnnl_tensor);
-  dtensor.feed_from(dtensor.get_dims(),
-                    ideep::tensor::data_type::f32,
-                    (cpu_tensor_cont.template data_ptr<float>()));
+  dtensor.feed_from({dtensor.get_dims(),
+                     ideep::tensor::data_type::f32,
+                     cpu_tensor_cont.template data_ptr<float>()});
   return dnnl_tensor;
 }
 
@@ -51,27 +51,28 @@ Tensor dnnl_reorder_conv2d_weight(
     IntArrayRef dilation,
     int64_t groups) {
 
-  auto stride_vec = expand_param_if_needed(stride, "stride", 2);
-  auto padding_vec = expand_param_if_needed(padding, "padding", 2);
-  auto dilation_vec = expand_param_if_needed(dilation, "dilation", 2);
+  // auto stride_vec = expand_param_if_needed(stride, "stride", 2);
+  // auto padding_vec = expand_param_if_needed(padding, "padding", 2);
+  // auto dilation_vec = expand_param_if_needed(dilation, "dilation", 2);
 
-  ideep::tensor w = itensor_from_dnnl(self).as_weights();
-  w.make_group(groups);
-  ideep::tensor::descriptor desc =
-      ideep::convolution_forward::expected_weights_descriptor(
-          w.get_dims(),
-          w.get_data_type(),
-          {stride_vec.cbegin(), stride_vec.cend()},
-          {padding_vec.cbegin(), padding_vec.cend()},
-          {padding_vec.cbegin(), padding_vec.cend()},
-          {dilation_vec.cbegin(), dilation_vec.cend()},
-          groups,
-          ideep::algorithm::convolution_direct);
-  ideep::tensor result;
-  result.init<AllocForDNNL>(desc);
-  result.feed_from(w);
+  // ideep::tensor w = itensor_from_dnnl(self).as_weights();
+  // w.make_group(groups);
+  // ideep::tensor::descriptor desc =
+  //     ideep::convolution_forward::expected_weights_descriptor(
+  //         w.get_dims(),
+  //         w.get_data_type(),
+  //         {stride_vec.cbegin(), stride_vec.cend()},
+  //         {padding_vec.cbegin(), padding_vec.cend()},
+  //         {padding_vec.cbegin(), padding_vec.cend()},
+  //         {dilation_vec.cbegin(), dilation_vec.cend()},
+  //         groups,
+  //         ideep::algorithm::convolution_direct);
+  // ideep::tensor result;
+  // result.init<AllocForDNNL>(desc);
+  // result.feed_from(w);
 
-  return new_with_itensor_dnnl(std::move(result), self.options());
+  // return new_with_itensor_dnnl(std::move(result), self.options());
+  return self;
 }
 
 #else

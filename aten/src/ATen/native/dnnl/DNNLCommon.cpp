@@ -70,9 +70,10 @@ ideep::tensor itensor_view_from_dense(const Tensor& tensor) {
   AT_ASSERTM(
       !tensor.is_variable(),
       "itensor_view_from_dense: should not be a variable");
-  return {{{tensor.sizes().cbegin(), tensor.sizes().cend()},
-           ideep::tensor::data_type::f32},
-          tensor.template data_ptr<float>()};
+  return {{tensor.sizes().cbegin(), tensor.sizes().cend()},
+           ideep::tensor::data_type::f32,
+          tensor.template data_ptr<float>(),
+          ideep::engine::cpu_engine()};
 }
 }}
 
