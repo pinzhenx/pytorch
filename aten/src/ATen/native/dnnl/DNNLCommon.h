@@ -30,6 +30,8 @@ ideep::tensor& itensor_from_dnnl(const Tensor& dnnl_tensor);
 // Construct an `ideep::tensor` "view" from dense tensor, note the
 // ideep::tensor will share the underlying buffer
 ideep::tensor itensor_view_from_dense(const Tensor& tensor);
+
+ideep::tensor empty_dnnl_tensor_like(const ideep::tensor& t);
 }}
 
 #endif // AT_DNNL_ENABLED
