@@ -9,12 +9,9 @@ namespace at { namespace native {
 #if AT_DNNL_ENABLED()
 
 Tensor dnnl_to_dense(const Tensor& dnnl_tensor) {
-  ideep::tensor& stensor = itensor_from_dnnl(dnnl_tensor);
-  auto dims = stensor.get_dims();
-  // NOTE: int32_t dims from ideep::tensor but sizes needs int64_t
-  Tensor cpu_tensor = at::empty(
-    std::vector<int64_t>(dims.begin(), dims.end()),
-    dnnl_tensor.options().layout(c10::kStrided));
+  auto& stensor = itensor_from_dnnl(dnnl_tensor);
+  auto cpu_tensor = at::empty(stensor.get_dims(),
+                              dnnl_tensor.options().layout(c10::kStrided));
   stensor.to_public(cpu_tensor.template data_ptr<float>());
   return cpu_tensor;
 }
@@ -28,12 +25,12 @@ Tensor dense_to_dnnl(const Tensor& cpu_tensor) {
              "dense_to_dnnl expects float tensor input");
   AT_ASSERTM(cpu_tensor.dim() <= 5,
              "Can't convert cpu tensor with the number of dimensions > 5");
-  // TODO: consider to convert non-contiguous tensor to `ideep::tensor` directly.
+  // TODO: consider to convert non-contiguous tensor to `ideep::tensor` directly
   auto cpu_tensor_cont = cpu_tensor.contiguous();
-  Tensor dnnl_tensor = empty_dnnl(cpu_tensor_cont.sizes(), cpu_tensor_cont.options());
-  ideep::tensor& dtensor = itensor_from_dnnl(dnnl_tensor);
-  dtensor.feed_from({dtensor.get_dims(),
-                     ideep::tensor::data_type::f32,
+  auto dnnl_tensor =
+      empty_dnnl(cpu_tensor_cont.sizes(), cpu_tensor_cont.options());
+  auto& dtensor = itensor_from_dnnl(dnnl_tensor);
+  dtensor.feed_from({dtensor.get_dims(), ideep::tensor::data_type::f32,
                      cpu_tensor_cont.template data_ptr<float>()});
   return dnnl_tensor;
 }

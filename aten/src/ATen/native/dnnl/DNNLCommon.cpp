@@ -41,21 +41,27 @@ using DNNLTensorImpl = OpaqueTensorImpl<IDeepTensorWrapperPtr>;
 using DNNLTensor = Tensor;
 
 Tensor new_with_itensor_dnnl(ideep::tensor&& it, const TensorOptions& options) {
-  // NOTE: int32_t dims from ideep::tensor but sizes needs int64_t
-  // TODO: support int64_t dims in ideep::tensor to avoid extra conversion
   auto dims = it.get_dims();
-  IDeepTensorWrapperPtr handle = c10::make_intrusive<IDeepTensorWrapper>(std::move(it));
-  return detail::make_tensor<DNNLTensorImpl>(
-    TensorTypeId::DnnlCPUTensorId, options.dtype(), options.device(), handle,
-    std::vector<int64_t>(dims.begin(), dims.end()));
+  IDeepTensorWrapperPtr handle =
+      c10::make_intrusive<IDeepTensorWrapper>(std::move(it));
+  return detail::make_tensor<DNNLTensorImpl>(TensorTypeId::DnnlCPUTensorId,
+                                             options.dtype(), options.device(),
+                                             handle, dims);
 }
 
 ideep::tensor& itensor_from_dnnl(const DNNLTensor& dnnl_tensor) {
-  AT_ASSERTM(dnnl_tensor.is_dnnl(),
-             "dnnl_to_dense expects DNNL tensor input");
-  AT_ASSERTM(!dnnl_tensor.is_variable(), "_internal_get_DNNLImpl: should not be a variable");
-  DNNLTensorImpl *mklimpl = static_cast<DNNLTensorImpl *>(dnnl_tensor.unsafeGetTensorImpl());
+  AT_ASSERTM(dnnl_tensor.is_dnnl(), "dnnl_to_dense expects DNNL tensor input");
+  AT_ASSERTM(!dnnl_tensor.is_variable(),
+             "_internal_get_DNNLImpl: should not be a variable");
+  DNNLTensorImpl* mklimpl =
+      static_cast<DNNLTensorImpl*>(dnnl_tensor.unsafeGetTensorImpl());
   return mklimpl->unsafe_opaque_handle()->get_target();
+}
+
+ideep::tensor empty_dnnl_tensor_like(const ideep::tensor& t) {
+  ideep::tensor ret;
+  ret.reinit_like(t);
+  return ret;
 }
 
 ideep::tensor itensor_view_from_dense(const Tensor& tensor) {
@@ -70,8 +76,9 @@ ideep::tensor itensor_view_from_dense(const Tensor& tensor) {
   AT_ASSERTM(
       !tensor.is_variable(),
       "itensor_view_from_dense: should not be a variable");
-  return {{tensor.sizes().cbegin(), tensor.sizes().cend()},
-           ideep::tensor::data_type::f32,
+  // XPZ: use default cpu engine?
+  return {tensor.sizes().vec(),
+          ideep::tensor::data_type::f32,
           tensor.template data_ptr<float>(),
           ideep::engine::cpu_engine()};
 }
