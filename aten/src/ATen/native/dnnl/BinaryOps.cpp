@@ -55,7 +55,7 @@ Tensor& dnnl_add_out(
 
   ideep::tensor& z = itensor_from_dnnl(result);
   const std::vector<float> scales{1.0, alpha.to<float>()};
-  ideep::sum::compute<AllocForDNNL>(scales, {x, y}, z);
+  ideep::sum::compute(scales, {x, y}, z);
 
   return result;
 }
@@ -66,7 +66,7 @@ Tensor dnnl_add(const Tensor& self, const Tensor& other, Scalar alpha) {
 
   ideep::tensor z;
   const std::vector<float> scales{1.0, alpha.to<float>()};
-  ideep::sum::compute<AllocForDNNL>(scales, {x, y}, z);
+  ideep::sum::compute(scales, {x, y}, z);
 
   return new_with_itensor_dnnl(std::move(z), self.options());
 }
@@ -83,7 +83,7 @@ Tensor& dnnl_mul_out(Tensor& result, const Tensor& self, const Tensor& other) {
 
   // for zero_dim tensor
   if (other.ndimension() == 0) {
-    ideep::eltwise_forward::compute<AllocForDNNL>(
+    ideep::eltwise_forward::compute(
       x, z, ideep::algorithm::eltwise_linear,
       ideep::prop_kind::forward_inference, /*alpha*/ other.item().to<float>());
 
@@ -92,8 +92,7 @@ Tensor& dnnl_mul_out(Tensor& result, const Tensor& self, const Tensor& other) {
     AT_ASSERTM(self.sizes() == other.sizes(),
                "dnnl_mul_out: currently dnnl not support broadcasting");
     ideep::tensor y = itensor_from_dnnl(other);
-    auto op = ideep::eltwise_binary::eltwise_binary_op::ELTWISE_MUL;
-    ideep::eltwise_binary::compute<AllocForDNNL>(op, x, y, z);
+    ideep::binary::compute(x, y, z, dnnl::algorithm::binary_mul);
 
     return result;
   }

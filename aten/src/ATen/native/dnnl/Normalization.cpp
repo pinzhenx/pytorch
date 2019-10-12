@@ -39,11 +39,11 @@ std::tuple<Tensor, Tensor, Tensor> dnnl_batch_norm(
     bool train,
     double momentum,
     double eps) {
-  ideep::tensor& x = itensor_from_dnnl(input);
-  ideep::tensor& w = itensor_from_dnnl(weight);
-  ideep::tensor& b = itensor_from_dnnl(bias);
-  ideep::tensor& m = itensor_from_dnnl(running_mean);
-  ideep::tensor& v = itensor_from_dnnl(running_var);
+  auto& x = itensor_from_dnnl(input);
+  auto& w = itensor_from_dnnl(weight);
+  auto& b = itensor_from_dnnl(bias);
+  auto& m = itensor_from_dnnl(running_mean);
+  auto& v = itensor_from_dnnl(running_var);
 
   ideep::tensor y;
 
@@ -62,7 +62,7 @@ std::tuple<Tensor, Tensor, Tensor> dnnl_batch_norm(
   } else {
     AT_ASSERTM(input.dim() == 4 || input.dim() == 5,
                "dnnl_batch_norm: currently dnnl only support 2d and 3d batchnorm");
-    ideep::batch_normalization_forward_inference::compute<AllocForDNNL>(
+    ideep::batch_normalization_forward_inference::compute(
         x, m, v, w, b, y, eps);
     return std::make_tuple(
         new_with_itensor_dnnl(std::move(y), input.options()),
