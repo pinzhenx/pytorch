@@ -44,25 +44,23 @@ Tensor dnnl_view(const Tensor& self, IntArrayRef size) {
 }
 
 Tensor dnnl_reshape(const Tensor& self, IntArrayRef size) {
-  // auto inferred_size = at::infer_size(size, self.numel());
-  // if (self.sizes() == inferred_size) {
-  //   return self;
-  // }
-  // const ideep::tensor& x = itensor_from_dnnl(self);
-  // ideep::tensor y{x};
-  // y.reshape<AllocForDNNL>({inferred_size.cbegin(), inferred_size.cend()});
-  // return new_with_itensor_dnnl(std::move(y), self.options());
-  return self;
+  auto inferred_size = at::infer_size(size, self.numel());
+  if (self.sizes() == inferred_size) {
+    return self;
+  }
+  auto& x = itensor_from_dnnl(self);
+  auto y = x.reshape(inferred_size);
+  return new_with_itensor_dnnl(std::move(y), self.options());
 }
 
 Tensor dnnl_clone(const Tensor& self) {
-  ideep::tensor& src = itensor_from_dnnl(self);
   ideep::tensor dst;
-  ideep::direct_copy::compute(src, dst);
+  ideep::direct_copy::compute(itensor_from_dnnl(self), dst);
   return new_with_itensor_dnnl(std::move(dst), self.options());
 }
 
 Tensor dnnl_transpose(const Tensor & self, int64_t dim0, int64_t dim1) {
+  AT_ERROR("XPZ: dnnl_transpose not implemented");
   // const ideep::tensor& x = itensor_from_dnnl(self);
   // ideep::tensor y;
   // std::vector<int> axes(x.ndims());
@@ -70,7 +68,7 @@ Tensor dnnl_transpose(const Tensor & self, int64_t dim0, int64_t dim1) {
   // std::swap(axes[dim0], axes[dim1]);
   // y.transpose_from<AllocForDNNL>(x, axes);
   // return new_with_itensor_dnnl(std::move(y), self.options());
-  return self;
+  // return self;
 }
 
 Tensor& dnnl_transpose_(Tensor& self, int64_t dim0, int64_t dim1) {
