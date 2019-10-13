@@ -32,9 +32,9 @@ Tensor dnnl_softmax(
       !half_to_float,
       "softmax with half to float conversion is not supported on Dnnl");
   const int64_t wrapped_dim = maybe_wrap_dim(dim, self.dim());
-  ideep::tensor& x = itensor_from_dnnl(self);
+  auto& x = itensor_from_dnnl(self);
   ideep::tensor y;
-  ideep::softmax_forward::compute<AllocForDNNL>(x, y, wrapped_dim);
+  ideep::softmax_forward::compute(x, y, wrapped_dim);
   return new_with_itensor_dnnl(std::move(y), self.options());
 }
 

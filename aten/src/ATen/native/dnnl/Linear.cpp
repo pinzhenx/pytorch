@@ -37,20 +37,20 @@ Tensor dnnl_linear(
 
   // reshape first if input dim is greater than 2 and the reshape will cost a memory copy.
   auto self_reshaped = self.dim() > 2 ? self.reshape({-1, self.size(self.dim() - 1)}) : self;
-  const ideep::tensor x = itensor_from_dnnl(self_reshaped);
-  const ideep::tensor w = itensor_from_dnnl(weight);
-
-  ideep::tensor y;
-  if (bias.defined()) {
-    const ideep::tensor b = itensor_from_dnnl(bias);
-    ideep::inner_product_forward::compute(x, w, b, y);
-  } else {
-    ideep::inner_product_forward::compute(x, w, y);
-  }
+  auto& x = itensor_from_dnnl(self_reshaped);
+  auto& w = itensor_from_dnnl(weight);
 
   auto input_size = self.sizes();
   std::vector<int64_t> output_size(input_size.begin(), input_size.end() - 1);
   output_size.push_back(weight.size(0));
+
+  ideep::tensor y {output_size, ideep::tensor::data_type::f32, nullptr};
+  if (bias.defined()) {
+    auto& b = itensor_from_dnnl(bias);
+    ideep::inner_product_forward::compute(x, w, b, y);
+  } else {
+    ideep::inner_product_forward::compute(x, w, y);
+  }
 
   if (self.dim() > 2) {
     return new_with_itensor_dnnl(std::move(y), self.options()).reshape(output_size);
