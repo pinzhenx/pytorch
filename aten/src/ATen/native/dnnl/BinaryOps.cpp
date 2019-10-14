@@ -50,24 +50,18 @@ Tensor& dnnl_add_out(
     const Tensor& self,
     const Tensor& other,
     Scalar alpha) {
-  ideep::tensor& x = itensor_from_dnnl(self);
-  ideep::tensor& y = itensor_from_dnnl(other);
-
-  ideep::tensor& z = itensor_from_dnnl(result);
-  const std::vector<float> scales{1.0, alpha.to<float>()};
-  ideep::sum::compute(scales, {x, y}, z);
-
+  auto& x = itensor_from_dnnl(self);
+  auto& y = itensor_from_dnnl(other);
+  auto& z = itensor_from_dnnl(result);
+  ideep::sum::compute(/*scales*/{1.0, alpha.to<float>()}, {x, y}, z);
   return result;
 }
 
 Tensor dnnl_add(const Tensor& self, const Tensor& other, Scalar alpha) {
-  ideep::tensor& x = itensor_from_dnnl(self);
-  ideep::tensor& y = itensor_from_dnnl(other);
-
+  auto& x = itensor_from_dnnl(self);
+  auto& y = itensor_from_dnnl(other);
   ideep::tensor z;
-  const std::vector<float> scales{1.0, alpha.to<float>()};
-  ideep::sum::compute(scales, {x, y}, z);
-
+  ideep::sum::compute(/*scales*/{1.0, alpha.to<float>()}, {x, y}, z);
   return new_with_itensor_dnnl(std::move(z), self.options());
 }
 
@@ -78,24 +72,21 @@ Tensor& dnnl_add_(Tensor& self, const Tensor& other, Scalar alpha) {
 Tensor& dnnl_mul_out(Tensor& result, const Tensor& self, const Tensor& other) {
   AT_ASSERTM(result.sizes() == self.sizes(),
              "dnnl_mul_out: the output size should be same as input size");
-  ideep::tensor& z = itensor_from_dnnl(result);
-  ideep::tensor& x = itensor_from_dnnl(self);
+  auto& x = itensor_from_dnnl(self);
+  auto& z = itensor_from_dnnl(result);
 
   // for zero_dim tensor
   if (other.ndimension() == 0) {
     ideep::eltwise_forward::compute(
       x, z, ideep::algorithm::eltwise_linear,
-      ideep::prop_kind::forward_inference, /*alpha*/ other.item().to<float>());
-
-    return result;
+      ideep::prop_kind::forward_inference, /*alpha*/other.item().to<float>());
   } else {
     AT_ASSERTM(self.sizes() == other.sizes(),
                "dnnl_mul_out: currently dnnl not support broadcasting");
-    ideep::tensor y = itensor_from_dnnl(other);
+    auto& y = itensor_from_dnnl(other);
     ideep::binary::compute(x, y, z, dnnl::algorithm::binary_mul);
-
-    return result;
   }
+  return result;
 }
 
 Tensor dnnl_mul(const Tensor& self, const Tensor& other) {
