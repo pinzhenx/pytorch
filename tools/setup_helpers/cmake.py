@@ -77,7 +77,7 @@ def get_cmake_cache_variables_from_file(cmake_cache_file):
         #   "USE_CUDA":BOOL=ON
         #   USE_CUDA=ON
         #   USE_CUDA:=ON
-        #   Intel(R) DNNL_SOURCE_DIR:STATIC=/path/to/pytorch/third_party/ideep/dnnl
+        #   Intel(R) DNNL_SOURCE_DIR:STATIC=/path/to/pytorch/third_party/ideep/mkl-dnn
         #   "OpenMP_COMPILE_RESULT_CXX_openmp:experimental":INTERNAL=FALSE
         matched = re.match(r'("?)(.+?)\1(?::\s*([a-zA-Z_-][a-zA-Z0-9_-]*)?)?\s*=\s*(.*)', line)
         if matched is None:  # Illegal line
