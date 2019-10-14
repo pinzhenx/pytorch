@@ -83,7 +83,7 @@ ideep::tensor _dnnl_conv2d(
   auto output_sizes =
       conv_output_size(input_size, kernel_size, padding, stride, dilation);
 
-  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32};
+  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32, nullptr};
   if (b.has_value()) {
     ideep::convolution_forward::compute(
         x,

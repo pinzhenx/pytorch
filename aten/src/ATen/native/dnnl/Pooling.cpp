@@ -130,7 +130,7 @@ static Tensor _dnnl_pool2d(
   }
 
   // XPZ: TODO: forward training?
-  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32};
+  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32, nullptr};
   ideep::pooling_forward::compute(
       x,
       y,
