@@ -80,7 +80,7 @@ libraries at the build time with the following build options:
 +------------+-----------------------+-----------------------------+----------------------------------------+
 | MKL        | ``MKL_THREADING``     | (same)                      | To enable MKL use ``BLAS=MKL``         |
 +------------+-----------------------+-----------------------------+----------------------------------------+
-| DNNL    | ``DNNL_THREADING``  | (same)                      | To enable DNNL use ``USE_DNNL=1`` |
+| DNNL       | ``DNNL_CPU_RUNTIME``  | (same)                      | To enable DNNL use ``USE_DNNL=1``      |
 +------------+-----------------------+-----------------------------+----------------------------------------+
 
 It is strongly recommended not to mix OpenMP and TBB within one build.
@@ -121,4 +121,4 @@ over environment variables, ``MKL_NUM_THREADS`` variable takes precedence over `
 .. _OpenMP: https://www.openmp.org/
 .. _TBB: https://github.com/intel/tbb
 .. _MKL: https://software.intel.com/en-us/mkl
-.. _DNNL: https://github.com/intel/dnnl
+.. _DNNL: https://github.com/intel/mkl-dnn
