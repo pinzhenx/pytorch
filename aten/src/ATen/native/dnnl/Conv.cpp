@@ -65,25 +65,7 @@ ideep::tensor _dnnl_conv2d(
     at::IntArrayRef stride,
     at::IntArrayRef dilation,
     int64_t groups) {
-  std::vector<int64_t> kernel_size(x.ndims());
-  // dnnl conv2d weights could have been re-ordered to 5d by
-  // dnnl_reorder_conv2d_weight
-  if (w.ndims() == x.ndims() + 1) {
-    AT_ASSERTM(
-        groups > 1,
-        "Only group _dnnl_conv2d weights could have been reordered to 5d");
-    kernel_size[0] = w.get_dim(0) * w.get_dim(1);
-    std::copy_n(
-        w.get_dims().cbegin() + 2, x.ndims() - 1, kernel_size.begin() + 1);
-  } else {
-    std::copy_n(w.get_dims().cbegin(), x.ndims(), kernel_size.begin());
-  }
-
-  auto input_size = x.get_dims();
-  auto output_sizes =
-      conv_output_size(input_size, kernel_size, padding, stride, dilation);
-
-  ideep::tensor y {output_sizes, ideep::tensor::data_type::f32, nullptr};
+  ideep::tensor y;
   if (b.has_value()) {
     ideep::convolution_forward::compute(
         x,
