@@ -192,124 +192,124 @@ bool removeStopGradientForInference(repr::NNModule* nn, caffe2::Workspace* ws) {
 }
 
 bool fuseConvBNAndAffCh(repr::NNModule* nn, caffe2::Workspace* ws) {
-  for (auto node_pair : repr::nn::dataIterator<repr::Conv>(nn->dataFlow)) {
-    bool no_bias = false;
-    repr::NNGraph::NodeRef convNode;
-    repr::Conv* conv;
-    std::tie(conv, convNode) = node_pair;
+//   for (auto node_pair : repr::nn::dataIterator<repr::Conv>(nn->dataFlow)) {
+//     bool no_bias = false;
+//     repr::NNGraph::NodeRef convNode;
+//     repr::Conv* conv;
+//     std::tie(conv, convNode) = node_pair;
 
-    if (!isOnIdeepDevice(*conv)) {
-      LOG(WARNING) << "Not a IDEEP operator";
-      continue;
-    }
+//     if (!isOnIdeepDevice(*conv)) {
+//       LOG(WARNING) << "Not a IDEEP operator";
+//       continue;
+//     }
 
-    const auto& convOp = getOpDef(*conv);
-    if (convOp.type() == "ConvFusion") {
-      continue;
-    }
+//     const auto& convOp = getOpDef(*conv);
+//     if (convOp.type() == "ConvFusion") {
+//       continue;
+//     }
 
-    auto convOutput = repr::nn::getOutputs(convNode).front();
-    auto consumers = repr::nn::getConsumers(convOutput);
-    // convOutput is NOT referenced by sequential ops after BN.
-    if (consumers.size() != 1) {
-      continue;
-    }
+//     auto convOutput = repr::nn::getOutputs(convNode).front();
+//     auto consumers = repr::nn::getConsumers(convOutput);
+//     // convOutput is NOT referenced by sequential ops after BN.
+//     if (consumers.size() != 1) {
+//       continue;
+//     }
 
-    bool isBN;
-    auto consumer = consumers.front();
-    if (repr::nn::is<repr::BatchNormalization>(consumer)) {
-      isBN = true;
-    } else if (isOpType(consumer, "AffineChannel")) {
-      isBN = false;
-    } else {
-      continue;
-    }
+//     bool isBN;
+//     auto consumer = consumers.front();
+//     if (repr::nn::is<repr::BatchNormalization>(consumer)) {
+//       isBN = true;
+//     } else if (isOpType(consumer, "AffineChannel")) {
+//       isBN = false;
+//     } else {
+//       continue;
+//     }
 
-    auto bnOrAffChNode = consumer;
-    auto bn =
-        isBN ? repr::nn::get<repr::BatchNormalization>(bnOrAffChNode) : nullptr;
-    auto bnOrAffChOutput = repr::nn::getOutputs(bnOrAffChNode).front();
+//     auto bnOrAffChNode = consumer;
+//     auto bn =
+//         isBN ? repr::nn::get<repr::BatchNormalization>(bnOrAffChNode) : nullptr;
+//     auto bnOrAffChOutput = repr::nn::getOutputs(bnOrAffChNode).front();
 
-    auto convInputs = repr::nn::getInputs(convNode);
-    if (convInputs.size() < 2) {
-      LOG(WARNING) << "Invalid convolution input size";
-      continue;
-    }
+//     auto convInputs = repr::nn::getInputs(convNode);
+//     if (convInputs.size() < 2) {
+//       LOG(WARNING) << "Invalid convolution input size";
+//       continue;
+//     }
 
-    auto bnOrAffChInputs = repr::nn::getInputs(bnOrAffChNode);
-    int numInputs = isBN ? 5 : 3;
-    if (bnOrAffChInputs.size() < numInputs) {
-      LOG(WARNING) << "Invalid input size: " << bnOrAffChInputs.size()
-                   << ", expect " << numInputs;
-      continue;
-    }
+//     auto bnOrAffChInputs = repr::nn::getInputs(bnOrAffChNode);
+//     int numInputs = isBN ? 5 : 3;
+//     if (bnOrAffChInputs.size() < numInputs) {
+//       LOG(WARNING) << "Invalid input size: " << bnOrAffChInputs.size()
+//                    << ", expect " << numInputs;
+//       continue;
+//     }
 
-    // When no bias, borrow BN bias
-    if (convInputs.size() < 3) {
-      no_bias = true;
-      nn->dataFlow.createEdge(bnOrAffChInputs[2], convNode);
-      convInputs = repr::nn::getInputs(convNode);
-    }
+//     // When no bias, borrow BN bias
+//     if (convInputs.size() < 3) {
+//       no_bias = true;
+//       nn->dataFlow.createEdge(bnOrAffChInputs[2], convNode);
+//       convInputs = repr::nn::getInputs(convNode);
+//     }
 
-#define EXPOSE_TENSOR_DATA(name, index, nodes, need_init)                  \
-  itensor* name = nullptr;                                                 \
-  itensor name##Tensor;                                                    \
-  float* name##Data = nullptr;                                             \
-  if (need_init) {                                                         \
-    name = getMutableTensor<itensor>(getBlob(nodes[index], ws));           \
-    if (name == nullptr) {                                                 \
-      LOG(WARNING) << #name " not a IDEEP tensor";                         \
-      continue;                                                            \
-    }                                                                      \
-    name##Tensor.resize(name->get_dims(), name->get_data_type());          \
-    name##Tensor.feed_from(*name);                                         \
-    CAFFE_ENFORCE(                                                         \
-        name##Tensor.is_public_format(), #name " not with public format"); \
-    name##Data = static_cast<float*>(name##Tensor.get_data_handle());      \
-  }
+// #define EXPOSE_TENSOR_DATA(name, index, nodes, need_init)                  \
+//   itensor* name = nullptr;                                                 \
+//   itensor name##Tensor;                                                    \
+//   float* name##Data = nullptr;                                             \
+//   if (need_init) {                                                         \
+//     name = getMutableTensor<itensor>(getBlob(nodes[index], ws));           \
+//     if (name == nullptr) {                                                 \
+//       LOG(WARNING) << #name " not a IDEEP tensor";                         \
+//       continue;                                                            \
+//     }                                                                      \
+//     name##Tensor.resize(name->get_dims(), name->get_data_type());          \
+//     name##Tensor.feed_from(*name);                                         \
+//     CAFFE_ENFORCE(                                                         \
+//         name##Tensor.is_public_format(), #name " not with public format"); \
+//     name##Data = static_cast<float*>(name##Tensor.get_data_handle());      \
+//   }
 
-    EXPOSE_TENSOR_DATA(filter, 1, convInputs, true);
-    EXPOSE_TENSOR_DATA(biasConv, 2, convInputs, true);
+//     EXPOSE_TENSOR_DATA(filter, 1, convInputs, true);
+//     EXPOSE_TENSOR_DATA(biasConv, 2, convInputs, true);
 
-    EXPOSE_TENSOR_DATA(scale, 1, bnOrAffChInputs, true);
-    EXPOSE_TENSOR_DATA(biasBNOrAffCh, 2, bnOrAffChInputs, true);
-    EXPOSE_TENSOR_DATA(mean, 3, bnOrAffChInputs, isBN);
-    EXPOSE_TENSOR_DATA(variance, 4, bnOrAffChInputs, isBN);
+//     EXPOSE_TENSOR_DATA(scale, 1, bnOrAffChInputs, true);
+//     EXPOSE_TENSOR_DATA(biasBNOrAffCh, 2, bnOrAffChInputs, true);
+//     EXPOSE_TENSOR_DATA(mean, 3, bnOrAffChInputs, isBN);
+//     EXPOSE_TENSOR_DATA(variance, 4, bnOrAffChInputs, isBN);
 
-#undef EXPOSE_TENSOR_DATA
+// #undef EXPOSE_TENSOR_DATA
 
-    // Assume M{CHW,HWC}
-    auto chwDim = filterTensor.get_dim(1) * filterTensor.get_dim(2) *
-        filterTensor.get_dim(3);
-    for (auto c = 0; c < filterTensor.get_dim(0); ++c) {
-      float mean_val = 0;
-      float variance_val = 1;
-      if (isBN) {
-        mean_val = meanData[c];
-        variance_val = std::sqrt(varianceData[c] + bn->getEpsilon());
-      }
-      float coeff = scaleData[c] / variance_val;
-      for (auto i = 0; i < chwDim; ++i) {
-        filterData[c * chwDim + i] *= coeff;
-      }
+//     // Assume M{CHW,HWC}
+//     auto chwDim = filterTensor.get_dim(1) * filterTensor.get_dim(2) *
+//         filterTensor.get_dim(3);
+//     for (auto c = 0; c < filterTensor.get_dim(0); ++c) {
+//       float mean_val = 0;
+//       float variance_val = 1;
+//       if (isBN) {
+//         mean_val = meanData[c];
+//         variance_val = std::sqrt(varianceData[c] + bn->getEpsilon());
+//       }
+//       float coeff = scaleData[c] / variance_val;
+//       for (auto i = 0; i < chwDim; ++i) {
+//         filterData[c * chwDim + i] *= coeff;
+//       }
 
-      if (no_bias) {
-        biasConvData[c] = biasBNOrAffChData[c] - mean_val * coeff;
-      } else {
-        biasConvData[c] =
-            biasBNOrAffChData[c] + (biasConvData[c] - mean_val) * coeff;
-      }
-    }
+//       if (no_bias) {
+//         biasConvData[c] = biasBNOrAffChData[c] - mean_val * coeff;
+//       } else {
+//         biasConvData[c] =
+//             biasBNOrAffChData[c] + (biasConvData[c] - mean_val) * coeff;
+//       }
+//     }
 
-    filter->feed_from(filterTensor);
-    biasConv->feed_from(biasConvTensor);
-    nn->dataFlow.replaceNode(convOutput, bnOrAffChOutput);
+//     filter->feed_from(filterTensor);
+//     biasConv->feed_from(biasConvTensor);
+//     nn->dataFlow.replaceNode(convOutput, bnOrAffChOutput);
 
-    nn->dataFlow.deleteNode(bnOrAffChNode);
-    nn->dataFlow.deleteNode(convOutput);
+//     nn->dataFlow.deleteNode(bnOrAffChNode);
+//     nn->dataFlow.deleteNode(convOutput);
 
-    return true;
-  }
+//     return true;
+//   }
   return false;
 }
 
@@ -639,73 +639,73 @@ bool enforceFusionInplace(repr::NNModule* nn, caffe2::Workspace* ws) {
 }
 
 bool fuseOrderSwitchToQuantizeOp(repr::NNModule* nn, caffe2::Workspace* ws) {
-  // In INT8 module, the quantize/dequantize op always appears
-  // along with corresponding order switch op, which aims to switch
-  // between INT8 computation domain and others.
-  // Here we assume they always obey below combination and order:
-  // NCHW2NHWC followed by Int8Quantize, or Int8Dequantize followed by NHWC2NCHW
-  // On iDEEP, there is chance to fuse the order switch op into the
-  // quantize/dequantize op, in order to improve the module performance.
-  auto allNodes = nn->dataFlow.getMutableNodes();
-  for (int i = 0; i < allNodes.size(); ++i) {
-    auto osNode = allNodes[i];
-    if (osNode == nullptr || !repr::nn::is<repr::NeuralNetOperator>(osNode)) {
-      continue;
-    }
+  // // In INT8 module, the quantize/dequantize op always appears
+  // // along with corresponding order switch op, which aims to switch
+  // // between INT8 computation domain and others.
+  // // Here we assume they always obey below combination and order:
+  // // NCHW2NHWC followed by Int8Quantize, or Int8Dequantize followed by NHWC2NCHW
+  // // On iDEEP, there is chance to fuse the order switch op into the
+  // // quantize/dequantize op, in order to improve the module performance.
+  // auto allNodes = nn->dataFlow.getMutableNodes();
+  // for (int i = 0; i < allNodes.size(); ++i) {
+  //   auto osNode = allNodes[i];
+  //   if (osNode == nullptr || !repr::nn::is<repr::NeuralNetOperator>(osNode)) {
+  //     continue;
+  //   }
 
-    if (isOpType(osNode, "NCHW2NHWC")) {
-      auto output = repr::nn::getOutputs(osNode).front();
-      auto consumers = repr::nn::getConsumers(output);
-      if (consumers.size() != 1) {
-        continue;
-      }
+  //   if (isOpType(osNode, "NCHW2NHWC")) {
+  //     auto output = repr::nn::getOutputs(osNode).front();
+  //     auto consumers = repr::nn::getConsumers(output);
+  //     if (consumers.size() != 1) {
+  //       continue;
+  //     }
 
-      auto seqNode = consumers.front();
-      if (!isOpType(seqNode, "Int8Quantize")) {
-        continue;
-      }
+  //     auto seqNode = consumers.front();
+  //     if (!isOpType(seqNode, "Int8Quantize")) {
+  //       continue;
+  //     }
 
-      auto seq = repr::nn::get<repr::NeuralNetOperator>(seqNode);
-      removeArg(*seq, "output_order");
+  //     auto seq = repr::nn::get<repr::NeuralNetOperator>(seqNode);
+  //     removeArg(*seq, "output_order");
 
-      auto* seqOp = getMutableOpDef(*seq);
-      auto* arg = seqOp->add_arg();
-      arg->set_name("output_order");
-      arg->set_i(iformat::nhwc);
+  //     auto* seqOp = getMutableOpDef(*seq);
+  //     auto* arg = seqOp->add_arg();
+  //     arg->set_name("output_order");
+  //     arg->set_i(iformat::nhwc);
 
-      auto input = repr::nn::getInputs(osNode).front();
-      nn->dataFlow.replaceNode(output, input);
+  //     auto input = repr::nn::getInputs(osNode).front();
+  //     nn->dataFlow.replaceNode(output, input);
 
-      nn->dataFlow.deleteNode(osNode);
-      nn->dataFlow.deleteNode(output);
-      return true;
-    } else if (isOpType(osNode, "NHWC2NCHW")) {
-      auto input = repr::nn::getInputs(osNode).front();
-      if (input->getInEdges().size() <= 0) {
-        continue;
-      }
+  //     nn->dataFlow.deleteNode(osNode);
+  //     nn->dataFlow.deleteNode(output);
+  //     return true;
+  //   } else if (isOpType(osNode, "NHWC2NCHW")) {
+  //     auto input = repr::nn::getInputs(osNode).front();
+  //     if (input->getInEdges().size() <= 0) {
+  //       continue;
+  //     }
 
-      auto preNode = repr::nn::getProducer(input);
-      if (!isOpType(preNode, "Int8Dequantize")) {
-        continue;
-      }
+  //     auto preNode = repr::nn::getProducer(input);
+  //     if (!isOpType(preNode, "Int8Dequantize")) {
+  //       continue;
+  //     }
 
-      auto pre = repr::nn::get<repr::NeuralNetOperator>(preNode);
-      removeArg(*pre, "output_order");
+  //     auto pre = repr::nn::get<repr::NeuralNetOperator>(preNode);
+  //     removeArg(*pre, "output_order");
 
-      auto* preOp = getMutableOpDef(*pre);
-      auto* arg = preOp->add_arg();
-      arg->set_name("output_order");
-      arg->set_i(iformat::nchw);
+  //     auto* preOp = getMutableOpDef(*pre);
+  //     auto* arg = preOp->add_arg();
+  //     arg->set_name("output_order");
+  //     arg->set_i(iformat::nchw);
 
-      auto output = repr::nn::getOutputs(osNode).front();
-      nn->dataFlow.replaceNode(input, output);
+  //     auto output = repr::nn::getOutputs(osNode).front();
+  //     nn->dataFlow.replaceNode(input, output);
 
-      nn->dataFlow.deleteNode(osNode);
-      nn->dataFlow.deleteNode(input);
-      return true;
-    }
-  }
+  //     nn->dataFlow.deleteNode(osNode);
+  //     nn->dataFlow.deleteNode(input);
+  //     return true;
+  //   }
+  // }
   return false;
 }
 
@@ -838,136 +838,136 @@ void setPoolingInferenceMode(repr::NNModule* nn) {
 // Pre-convert filters format to expected one here
 // in order to avoid boring conversions during computations
 void preConvertFiltersFormat(repr::NNModule* nn, caffe2::Workspace* ws) {
-  for (auto& node : nn->dataFlow.getMutableNodes()) {
-    if (!repr::nn::is<repr::ConvTranspose>(node) &&
-        !repr::nn::is<repr::Conv>(node) && !repr::nn::is<repr::FC>(node)) {
-      continue;
-    }
+  // for (auto& node : nn->dataFlow.getMutableNodes()) {
+  //   if (!repr::nn::is<repr::ConvTranspose>(node) &&
+  //       !repr::nn::is<repr::Conv>(node) && !repr::nn::is<repr::FC>(node)) {
+  //     continue;
+  //   }
 
-    auto* nnOp = repr::nn::get<repr::NeuralNetOperator>(node);
-    if (!isOnIdeepDevice(*nnOp)) {
-      LOG(INFO) << "Not a IDEEP operator";
-      continue;
-    }
+  //   auto* nnOp = repr::nn::get<repr::NeuralNetOperator>(node);
+  //   if (!isOnIdeepDevice(*nnOp)) {
+  //     LOG(INFO) << "Not a IDEEP operator";
+  //     continue;
+  //   }
 
-    auto inputs = repr::nn::getInputs(node);
-    if (inputs.size() < 2) {
-      LOG(WARNING) << "Invalid input size";
-      continue;
-    }
+  //   auto inputs = repr::nn::getInputs(node);
+  //   if (inputs.size() < 2) {
+  //     LOG(WARNING) << "Invalid input size";
+  //     continue;
+  //   }
 
-    auto* filterBlob = getBlob(inputs[1], ws);
-    auto* filter = getMutableTensor<itensor>(filterBlob);
-    if (filter == nullptr) {
-      continue;
-    }
+  //   auto* filterBlob = getBlob(inputs[1], ws);
+  //   auto* filter = getMutableTensor<itensor>(filterBlob);
+  //   if (filter == nullptr) {
+  //     continue;
+  //   }
 
-    itensor::descriptor expectedDesc;
-    if (repr::nn::is<repr::ConvTranspose>(node)) {
-      if (filter->get_public_format() == ideep::format::iohw)
-        continue;
-      auto convTranspose = repr::nn::get<repr::ConvTranspose>(node);
-      auto initValue = [](vector<int>& v, vector<int> i) {
-        if (v.empty())
-          v = i;
-      };
-      auto strides = convTranspose->getStrides();
-      initValue(strides, {1, 1});
-      auto pads = convTranspose->getPads();
-      initValue(pads, {0, 0, 0, 0});
-      auto* op = getMutableOpDef(*convTranspose);
-      auto aalgorithm = ialgo::deconvolution_direct;
-      auto dataType = filter->get_data_type();
-      ideep::tensor::dims filter_dims_dnnl{filter->get_dim(1),
-                                             filter->get_dim(0),
-                                             filter->get_dim(2),
-                                             filter->get_dim(3)};
-      expectedDesc =
-          ideep::convolution_transpose_forward::expected_weights_descriptor(
-              filter_dims_dnnl,
-              dataType,
-              strides,
-              {pads[0], pads[1]},
-              {pads[2], pads[3]});
+  //   itensor::desc expectedDesc;
+  //   if (repr::nn::is<repr::ConvTranspose>(node)) {
+  //     if (filter->get_public_format() == ideep::format::iohw)
+  //       continue;
+  //     auto convTranspose = repr::nn::get<repr::ConvTranspose>(node);
+  //     auto initValue = [](vector<int>& v, vector<int> i) {
+  //       if (v.empty())
+  //         v = i;
+  //     };
+  //     auto strides = convTranspose->getStrides();
+  //     initValue(strides, {1, 1});
+  //     auto pads = convTranspose->getPads();
+  //     initValue(pads, {0, 0, 0, 0});
+  //     auto* op = getMutableOpDef(*convTranspose);
+  //     auto aalgorithm = ialgo::deconvolution_direct;
+  //     auto dataType = filter->get_data_type();
+  //     ideep::tensor::dims filter_dims_dnnl{filter->get_dim(1),
+  //                                            filter->get_dim(0),
+  //                                            filter->get_dim(2),
+  //                                            filter->get_dim(3)};
+  //     expectedDesc =
+  //         ideep::convolution_transpose_forward::expected_weights_descriptor(
+  //             filter_dims_dnnl,
+  //             dataType,
+  //             strides,
+  //             {pads[0], pads[1]},
+  //             {pads[2], pads[3]});
 
-      if (filter->get_descriptor() != expectedDesc) {
-        filter->set_public_format(ideep::format::iohw);
-        itensor newFilter;
-        newFilter.init(expectedDesc);
-        newFilter.feed_from(*filter);
-        newFilter.set_public_format(ideep::format::iohw);
-        filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
-      }
-    } else if (repr::nn::is<repr::Conv>(node)) {
-      auto conv = repr::nn::get<repr::Conv>(node);
-      auto initValue = [](vector<int>& v, vector<int> i) {
-        if (v.empty())
-          v = i;
-      };
-      auto strides = conv->getStrides();
-      initValue(strides, {1, 1});
-      auto pads = conv->getPads();
-      initValue(pads, {0, 0, 0, 0});
-      auto dilations = conv->getDilations();
-      initValue(dilations, {1, 1});
+  //     if (filter->get_desc() != expectedDesc) {
+  //       filter->set_public_format(ideep::format::iohw);
+  //       itensor newFilter;
+  //       newFilter.init(expectedDesc);
+  //       newFilter.feed_from(*filter);
+  //       newFilter.set_public_format(ideep::format::iohw);
+  //       filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
+  //     }
+  //   } else if (repr::nn::is<repr::Conv>(node)) {
+  //     auto conv = repr::nn::get<repr::Conv>(node);
+  //     auto initValue = [](vector<int>& v, vector<int> i) {
+  //       if (v.empty())
+  //         v = i;
+  //     };
+  //     auto strides = conv->getStrides();
+  //     initValue(strides, {1, 1});
+  //     auto pads = conv->getPads();
+  //     initValue(pads, {0, 0, 0, 0});
+  //     auto dilations = conv->getDilations();
+  //     initValue(dilations, {1, 1});
 
-      auto* op = getMutableOpDef(*conv);
-      auto aalgorithm = ialgo::convolution_direct;
-      for (auto& arg : *op->mutable_arg()) {
-        if ((arg.name() == "conv_algorithm") &&
-            (arg.i() == CONV_ALGORITHM_WINOGRAD)) {
-          aalgorithm = ialgo::convolution_winograd;
-        }
-      }
-      auto dataType = filter->get_data_type();
+  //     auto* op = getMutableOpDef(*conv);
+  //     auto aalgorithm = ialgo::convolution_direct;
+  //     for (auto& arg : *op->mutable_arg()) {
+  //       if ((arg.name() == "conv_algorithm") &&
+  //           (arg.i() == CONV_ALGORITHM_WINOGRAD)) {
+  //         aalgorithm = ialgo::convolution_winograd;
+  //       }
+  //     }
+  //     auto dataType = filter->get_data_type();
 
-      filter->make_group(conv->getGroup());
-      expectedDesc = ideep::convolution_forward::expected_weights_descriptor(
-          filter->get_dims(),
-          dataType,
-          strides,
-          {pads[0], pads[1]},
-          {pads[2], pads[3]},
-          dilations,
-          conv->getGroup(),
-          aalgorithm);
+  //     filter->make_group(conv->getGroup());
+  //     expectedDesc = ideep::convolution_forward::expected_weights_descriptor(
+  //         filter->get_dims(),
+  //         dataType,
+  //         strides,
+  //         {pads[0], pads[1]},
+  //         {pads[2], pads[3]},
+  //         dilations,
+  //         conv->getGroup(),
+  //         aalgorithm);
 
-      if (filter->get_descriptor() != expectedDesc) {
-        itensor newFilter;
-        newFilter.init(expectedDesc);
-        newFilter.feed_from(*filter);
-        filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
-      }
-      // convert weights for FC
-    } else if (repr::nn::is<repr::FC>(node)) {
-      auto fc = repr::nn::get<repr::FC>(node);
-      auto axis_w = fc->getAxisW();
-      if (axis_w != 1) {
-        auto f_dims = filter->get_dims();
-        auto f_dim0 = std::accumulate(
-            f_dims.begin(),
-            f_dims.begin() + axis_w,
-            1,
-            std::multiplies<itensor::dim_t>());
-        auto f_dim1 = std::accumulate(
-            f_dims.begin() + axis_w,
-            f_dims.end(),
-            1,
-            std::multiplies<itensor::dim_t>());
-        filter->reshape({f_dim0, f_dim1});
-      }
+  //     if (filter->get_desc() != expectedDesc) {
+  //       itensor newFilter;
+  //       newFilter.init(expectedDesc);
+  //       newFilter.feed_from(*filter);
+  //       filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
+  //     }
+  //     // convert weights for FC
+  //   } else if (repr::nn::is<repr::FC>(node)) {
+  //     auto fc = repr::nn::get<repr::FC>(node);
+  //     auto axis_w = fc->getAxisW();
+  //     if (axis_w != 1) {
+  //       auto f_dims = filter->get_dims();
+  //       auto f_dim0 = std::accumulate(
+  //           f_dims.begin(),
+  //           f_dims.begin() + axis_w,
+  //           1,
+  //           std::multiplies<itensor::dim_t>());
+  //       auto f_dim1 = std::accumulate(
+  //           f_dims.begin() + axis_w,
+  //           f_dims.end(),
+  //           1,
+  //           std::multiplies<itensor::dim_t>());
+  //       filter->reshape({f_dim0, f_dim1});
+  //     }
 
-      expectedDesc = ideep::inner_product_forward::expected_weights_descriptor(
-          filter->get_dims());
+  //     expectedDesc = ideep::inner_product_forward::expected_weights_descriptor(
+  //         filter->get_dims());
 
-      if (filter->get_descriptor() != expectedDesc) {
-        itensor newFilter;
-        newFilter.init(expectedDesc);
-        newFilter.feed_from(filter->as_weights());
-        filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
-      }
-    }
-  }
+  //     if (filter->get_desc() != expectedDesc) {
+  //       itensor newFilter;
+  //       newFilter.init(expectedDesc);
+  //       newFilter.feed_from(filter->as_weights());
+  //       filterBlob->Reset<itensor>(new itensor(std::move(newFilter)));
+  //     }
+  //   }
+  // }
 }
 
 // Fusers for ideep to parse the graph and apply operator fusion

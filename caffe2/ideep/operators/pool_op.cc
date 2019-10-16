@@ -36,17 +36,16 @@ class IDEEPPoolOp final : public IDEEPConvPoolOpBase {
   ~IDEEPPoolOp() override {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    auto& X = Input(INPUT);
-    auto* Y = Output(OUTPUT);
-    auto Y_dims = CalcOutputDims(X, X.get_dim(1));
+    // auto& X = Input(INPUT);
+    // auto* Y = Output(OUTPUT);
+    // auto Y_dims = CalcOutputDims(X, X.get_dim(1));
 
-    if (cached_X_descriptor_ != X.get_descriptor()) {
-      op_key_.clear();
-      cached_X_descriptor_ = X.dup_descriptor();
-    }
+    // if (cached_X_descriptor_ != X.get_desc()) {
+    //   cached_X_descriptor_ = X.dup_descriptor();
+    // }
 
-    ideep::pooling_forward::compute(op_key_, X, Y_dims, *Y,
-        stride_, kernel_, pad_tl(), pad_br(), algo_, pk_);
+    // ideep::pooling_forward::compute(X, Y_dims, *Y,
+    //     stride_, kernel_, pad_tl(), pad_br(), algo_, pk_);
 
     return true;
   }
@@ -54,8 +53,7 @@ class IDEEPPoolOp final : public IDEEPConvPoolOpBase {
  private:
   iprop pk_;
   ialgo algo_;
-  ikey op_key_;
-  itensor::descriptor cached_X_descriptor_;
+  itensor::desc cached_X_descriptor_;
 
   INPUT_TAGS(INPUT);
   OUTPUT_TAGS(OUTPUT);
@@ -89,13 +87,13 @@ class IDEEPPoolGradientOp final : public IDEEPConvPoolOpBase {
   ~IDEEPPoolGradientOp() override {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    const auto& X = Input(INPUT);
-    const auto& Y = Input(OUTPUT);
-    const auto& dY = Input(OUTPUT_GRAD);
-    auto* dX = Output(INPUT_GRAD);
+    // const auto& X = Input(INPUT);
+    // const auto& Y = Input(OUTPUT);
+    // const auto& dY = Input(OUTPUT_GRAD);
+    // auto* dX = Output(INPUT_GRAD);
 
-    ideep::pooling_backward::compute(dY, Y, X, *dX,
-        stride_, kernel_, pad_tl(), pad_br(), algo_);
+    // ideep::pooling_backward::compute(dY, Y, X, *dX,
+    //     stride_, kernel_, pad_tl(), pad_br(), algo_);
 
     return true;
   }

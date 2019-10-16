@@ -54,42 +54,43 @@ public:
 
   FetchedBlob FetchTensor(const itensor &atensor, bool force_copy) {
 #ifdef USE_NUMPY
-    FetchedBlob result;
-    CAFFE_ENFORCE((atensor.ndims() != 0) &&
-                  (atensor.get_nelems() == 0 ||
-                   atensor.get_data_handle() != nullptr),
-                  "Trying to fetch uninitialized tensor");
-    // NOTE: Only support float so far.
-    const int numpy_type = NPY_FLOAT;
-    CAFFE_ENFORCE(
-        numpy_type != -1,
-        "Unsupported ideep memory data type? This usually should not happen "
-        "since ideep memory usually only do float and double.");
-    itensor::dims dims = atensor.get_public_format_dims();
-    std::vector<npy_intp> npy_dims(dims.begin(), dims.end());
+    // FetchedBlob result;
+    // CAFFE_ENFORCE((atensor.ndims() != 0) &&
+    //               (atensor.get_nelems() == 0 ||
+    //                atensor.get_data_handle() != nullptr),
+    //               "Trying to fetch uninitialized tensor");
+    // // NOTE: Only support float so far.
+    // const int numpy_type = NPY_FLOAT;
+    // CAFFE_ENFORCE(
+    //     numpy_type != -1,
+    //     "Unsupported ideep memory data type? This usually should not happen "
+    //     "since ideep memory usually only do float and double.");
+    // itensor::dims dims = atensor.get_public_format_dims();
+    // std::vector<npy_intp> npy_dims(dims.begin(), dims.end());
 
-    result.copied = force_copy || atensor.need_reorder();
-    void *outPtr;
-    if (result.copied) {
-      result.obj = py::reinterpret_steal<py::object>(
-          PyArray_SimpleNew(atensor.ndims(), npy_dims.data(), numpy_type));
-      outPtr = static_cast<void *>(
-          PyArray_DATA(reinterpret_cast<PyArrayObject *>(result.obj.ptr())));
-    } else {
-      outPtr = atensor.get_data_handle();
-      result.obj = py::reinterpret_steal<py::object>(PyArray_SimpleNewFromData(
-          atensor.ndims(), npy_dims.data(), numpy_type, outPtr));
-    }
+    // result.copied = force_copy || atensor.need_reorder();
+    // void *outPtr;
+    // if (result.copied) {
+    //   result.obj = py::reinterpret_steal<py::object>(
+    //       PyArray_SimpleNew(atensor.ndims(), npy_dims.data(), numpy_type));
+    //   outPtr = static_cast<void *>(
+    //       PyArray_DATA(reinterpret_cast<PyArrayObject *>(result.obj.ptr())));
+    // } else {
+    //   outPtr = atensor.get_data_handle();
+    //   result.obj = py::reinterpret_steal<py::object>(PyArray_SimpleNewFromData(
+    //       atensor.ndims(), npy_dims.data(), numpy_type, outPtr));
+    // }
 
-    if (numpy_type == NPY_OBJECT) {
-      CAFFE_THROW("We don't support strings.");
-    }
+    // if (numpy_type == NPY_OBJECT) {
+    //   CAFFE_THROW("We don't support strings.");
+    // }
 
-    if (result.copied) {
-      atensor.to_public(outPtr);
-    }
+    // if (result.copied) {
+    //   atensor.to_public(outPtr);
+    // }
 
-    return result;
+    // return result;
+    CAFFE_THROW("XPZ: not implemented");
 #else
     CAFFE_THROW("Caffe2 was compiled without NumPy support.");
 #endif // USE_NUMPY
@@ -144,8 +145,8 @@ public:
         if (tensor->get_dims() != adims || type != tensor->get_data_type()) {
           tensor->resize(adims, type);
         }
-        tensor->feed_from(adims, type,
-                             static_cast<void *>(PyArray_DATA(array)));
+        tensor->feed_from({adims, type,
+                           static_cast<void *>(PyArray_DATA(array))});
     }
 #else
     CAFFE_THROW("Caffe2 was compiled without NumPy support.");

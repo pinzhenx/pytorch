@@ -34,20 +34,20 @@ class IDEEPConvPoolOpBase : public ConvPoolOpBase<IDEEPContext> {
       int output_channel) {
     CAFFE_ENFORCE_GT(input.get_size(), 0);
     ideep::tensor::dims output_dims;
-    const auto input_dims = input.get_dims();
-    std::vector<std::int64_t> input_Tdims(
-        input_dims.cbegin(), input_dims.cend());
-    InferOutputSize(
-        input_Tdims,
-        output_channel,
-        StorageOrder::NCHW, //order_,
-        global_pooling_,
-        legacy_pad_,
-        dilation_,
-        stride_,
-        &kernel_,
-        &pads_,
-        &output_dims);
+    // const auto input_dims = input.get_dims();
+    // std::vector<std::int64_t> input_Tdims(
+    //     input_dims.cbegin(), input_dims.cend());
+    // InferOutputSize(
+    //     input_Tdims,
+    //     output_channel,
+    //     StorageOrder::NCHW, //order_,
+    //     global_pooling_,
+    //     legacy_pad_,
+    //     dilation_,
+    //     stride_,
+    //     &kernel_,
+    //     &pads_,
+    //     &output_dims);
     return output_dims;
   }
 

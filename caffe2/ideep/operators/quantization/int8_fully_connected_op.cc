@@ -29,51 +29,49 @@ public:
   virtual ~IDEEPInt8FullyConnectedOp() {}
 
   bool RunOnDevice() override {
-    const auto& X = Input(INPUT);
-    const auto& filter = Input(FILTER);
-    auto* Y = Output(OUTPUT);
+    // const auto& X = Input(INPUT);
+    // const auto& filter = Input(FILTER);
+    // auto* Y = Output(OUTPUT);
 
-    itensor X_in = X;
-    auto X_dims = CanonicalDims(X_in.get_dims(), axis_);
-    if (X_in.get_dims() != X_dims) {
-      X_in.reshape(X_dims);
-    }
+    // itensor X_in = X;
+    // auto X_dims = CanonicalDims(X_in.get_dims(), axis_);
+    // if (X_in.get_dims() != X_dims) {
+    //   X_in.reshape(X_dims);
+    // }
 
-    if (cached_X_descriptor_ != X.get_descriptor()) {
-      op_key_.clear();
-      cached_X_descriptor_ = X.dup_descriptor();
-      Y_.init({{X.get_dim(0), filter.get_dim(0)}, idtype::f32});
-    }
+    // if (cached_X_descriptor_ != X.get_desc()) {
+    //   cached_X_descriptor_ = X.dup_desc();
+    //   Y_.reinit({{X.get_dim(0), filter.get_dim(0)}, idtype::f32});
+    // }
 
-    if (cached_weights_descriptor_ != filter.get_descriptor()) {
-      op_key_.clear();
-      cached_weights_descriptor_ = filter.dup_descriptor();
-      CAFFE_ENFORCE(filter.get_data_type() == idtype::s8 && filter.has_scale());
+    // if (cached_weights_descriptor_ != filter.get_desc()) {
+    //   cached_weights_descriptor_ = filter.dup_descriptor();
+    //   CAFFE_ENFORCE(filter.get_data_type() == idtype::s8 && filter.has_scale());
 
-      // INT8 FC is not supported so far.
-      filter_ = filter.to_public();
-      auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
-      if (filter_.get_dims() != filter_dims) {
-        filter_.reshape(filter_dims);
-      }
+    //   // INT8 FC is not supported so far.
+    //   filter_ = filter.to_public();
+    //   auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
+    //   if (filter_.get_dims() != filter_dims) {
+    //     filter_.reshape(filter_dims);
+    //   }
 
-      if (InputSize() > BIAS) {
-        bias_ = Input(BIAS).to_public();
-      }
+    //   if (InputSize() > BIAS) {
+    //     bias_ = Input(BIAS).to_public();
+    //   }
 
-      Y_.init({{X.get_dim(0), filter.get_dim(0)}, idtype::f32});
-    }
+    //   Y_.reinit({{X.get_dim(0), filter.get_dim(0)}, idtype::f32});
+    // }
 
-    if (InputSize() > BIAS) {
-      ideep::inner_product_forward::compute(
-          op_key_, X_in, filter_, bias_, Y_);
-    } else {
-      ideep::inner_product_forward::compute(op_key_, X_in, filter_, Y_);
-    }
+    // if (InputSize() > BIAS) {
+    //   ideep::inner_product_forward::compute(
+    //       X_in, filter_, bias_, Y_);
+    // } else {
+    //   ideep::inner_product_forward::compute(X_in, filter_, Y_);
+    // }
 
-    Y->init({Y_.get_dims(), Y_data_type_});
-    Y->set_scale(Y_scales_);
-    Y->feed_from(Y_);
+    // Y->reinit({Y_.get_dims(), Y_data_type_});
+    // Y->set_scale(Y_scales_);
+    // Y->feed_from(Y_);
     return true;
   }
 
@@ -83,11 +81,10 @@ private:
   float scale_;
   int32_t zero_point_;
 
-  ikey op_key_;
   idtype Y_data_type_;
   itensor filter_, bias_, Y_;
   iscale  Y_scales_;
-  itensor::descriptor cached_X_descriptor_, cached_weights_descriptor_;
+  itensor::desc cached_X_descriptor_, cached_weights_descriptor_;
 
   INPUT_TAGS(INPUT, FILTER, BIAS);
   OUTPUT_TAGS(OUTPUT);

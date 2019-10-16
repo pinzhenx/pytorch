@@ -12,27 +12,27 @@ class IDEEPInt8DequantizeOp final : public IDEEPOperator {
   IDEEPInt8DequantizeOp(const OperatorDef& operator_def, Workspace* ws)
       : IDEEPOperator(operator_def, ws) {
 
-    if (HasArgument("output_order")) {
-      Y_fmt_ = static_cast<iformat>(
-        this->template GetSingleArgument<int>("output_order", iformat::nchw));
-    }
+    // if (HasArgument("output_order")) {
+    //   Y_fmt_ = static_cast<iformat>(
+    //     this->template GetSingleArgument<int>("output_order", iformat::nchw));
+    // }
   }
   virtual ~IDEEPInt8DequantizeOp() {}
 
   bool RunOnDevice() override {
-    const auto& X = Input(0);
-    auto* Y = Output(0);
+    // const auto& X = Input(0);
+    // auto* Y = Output(0);
 
-    Y->init({X.get_dims(), idtype::f32,
-        Y_fmt_ != iformat::format_undef
-        ? Y_fmt_ : X.get_public_format()});
-    Y->feed_from(X);
+    // Y->reinit({X.get_dims(), idtype::f32,
+    //     Y_fmt_ != iformat::undef
+    //     ? Y_fmt_ : X.get_public_format()});
+    // Y->feed_from(X);
 
     return true;
   }
 
  private:
-  iformat Y_fmt_ {iformat::format_undef};
+  iformat Y_fmt_ {iformat::undef};
 };
 
 REGISTER_IDEEP_OPERATOR_WITH_ENGINE(Int8Dequantize, DNNLOWP, IDEEPInt8DequantizeOp);

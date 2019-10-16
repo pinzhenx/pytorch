@@ -13,14 +13,15 @@ class IDEEPNHWC2NCHWOp final : public IDEEPOperator {
   bool RunOnDevice() override {
     const auto& X = Input(0);
     CAFFE_ENFORCE_EQ(X.ndims(), 4);
-    CAFFE_ENFORCE(X.get_internal_format() == iformat::nhwc);
+    // XPZ: TODO: check?
+    // CAFFE_ENFORCE(X.get_internal_format() == iformat::nhwc);
 
     auto *Y = Output(OUTPUT);
     CAFFE_ENFORCE(Y != &X);
 
     // NOTE: NHWC changes the shape in framework, but not in DNNL
     // Thus, for iDEEP tensor, the shapes of NCHW and NHWC are identical.
-    Y->init({X.get_dims(), X.get_data_type(), iformat::nchw});
+    Y->reinit({X.get_dims(), X.get_data_type(), iformat::nchw});
     Y->feed_from(X);
     return true;
   }
@@ -39,14 +40,15 @@ class IDEEPNCHW2NHWCOp final : public IDEEPOperator {
   bool RunOnDevice() override {
     const auto& X = Input(0);
     CAFFE_ENFORCE_EQ(X.ndims(), 4);
-    CAFFE_ENFORCE(X.get_internal_format() == iformat::nchw);
+    // XPZ: TODO: check?
+    // CAFFE_ENFORCE(X.get_internal_format() == iformat::nchw);
 
     auto *Y = Output(OUTPUT);
     CAFFE_ENFORCE(Y != &X);
 
     // NOTE: NHWC changes the shape in framework, but not in DNNL
     // Thus, for iDEEP tensor, the shapes of NCHW and NHWC are identical.
-    Y->init({X.get_dims(), X.get_data_type(), iformat::nhwc});
+    Y->reinit({X.get_dims(), X.get_data_type(), iformat::nhwc});
     Y->feed_from(X);
     return true;
   }

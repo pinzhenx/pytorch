@@ -28,31 +28,31 @@ class IDEEPInt8SumReluOp final : public IDEEPOperator {
   virtual ~IDEEPInt8SumReluOp() {}
 
   bool RunOnDevice() override {
-    itensor temp_ten;
-    itensor::dims input_dims;
-    vector<itensor> inputs_itensor;
+    // itensor temp_ten;
+    // itensor::dims input_dims;
+    // vector<itensor> inputs_itensor;
 
-    CAFFE_ENFORCE_GT(InputSize(), 1, "Wrong input size (must > 1)");
-    for (int i = 0; i < InputSize(); ++i) {
-      CAFFE_ENFORCE(OperatorBase::InputBlob(i).template IsType<itensor>());
-      auto& Xi = Input(i);
-      if (input_dims.empty())
-        input_dims = Xi.get_dims();
-      CAFFE_ENFORCE(input_dims == Xi.get_dims());
-      inputs_itensor.emplace_back(Xi);
-    }
+    // CAFFE_ENFORCE_GT(InputSize(), 1, "Wrong input size (must > 1)");
+    // for (int i = 0; i < InputSize(); ++i) {
+    //   CAFFE_ENFORCE(OperatorBase::InputBlob(i).template IsType<itensor>());
+    //   auto& Xi = Input(i);
+    //   if (input_dims.empty())
+    //     input_dims = Xi.get_dims();
+    //   CAFFE_ENFORCE(input_dims == Xi.get_dims());
+    //   inputs_itensor.emplace_back(Xi);
+    // }
 
-    temp_ten.init({input_dims, idtype::f32});
-    const vector<float> scales(InputSize(), 1.0);
-    ideep::sum::compute(scales, inputs_itensor, temp_ten);
-    if (ReluFused) {
-      ideep::eltwise_forward::compute(temp_ten, temp_ten);
-    }
+    // temp_ten.init({input_dims, idtype::f32});
+    // const vector<float> scales(InputSize(), 1.0);
+    // ideep::sum::compute(scales, inputs_itensor, temp_ten);
+    // if (ReluFused) {
+    //   ideep::eltwise_forward::compute(temp_ten, temp_ten);
+    // }
 
-    auto* Y = Output(OUTPUT);
-    Y->init({temp_ten.get_dims(), Y_data_type_, iformat::nhwc});
-    Y->set_scale(Y_scales_);
-    Y->feed_from(temp_ten);
+    // auto* Y = Output(OUTPUT);
+    // Y->init({temp_ten.get_dims(), Y_data_type_, iformat::nhwc});
+    // Y->set_scale(Y_scales_);
+    // Y->feed_from(temp_ten);
     return true;
   }
 

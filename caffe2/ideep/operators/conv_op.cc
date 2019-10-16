@@ -33,105 +33,101 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
   virtual ~IDEEPConvOp() {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    const auto& X = Input(INPUT_X);
-    const auto& filter = Input(FILTER);
-    auto* Y = Output(OUTPUT);
-    auto grouped = filter.is_grouped() ? 1 : 0;
-    auto Y_dims_conv = CalcOutputDims(
-        X,
-        grouped ? (filter.get_dim(0) * filter.get_dim(1)) : filter.get_dim(0));
+    // const auto& X = Input(INPUT_X);
+    // const auto& filter = Input(FILTER);
+    // auto* Y = Output(OUTPUT);
+    // auto grouped = filter.is_grouped() ? 1 : 0;
+    // auto Y_dims_conv = CalcOutputDims(
+    //     X,
+    //     grouped ? (filter.get_dim(0) * filter.get_dim(1)) : filter.get_dim(0));
 
-    CAFFE_ENFORCE(4 == X.ndims());
-    CAFFE_ENFORCE(4 == filter.ndims() || (grouped && (group_ > 1)));
-    CAFFE_ENFORCE_EQ(filter.get_dim(2 + grouped), kernel_h());
-    CAFFE_ENFORCE_EQ(filter.get_dim(3 + grouped), kernel_w());
-    CAFFE_ENFORCE(
-        X.get_dim(1) == filter.get_dim(1 + grouped) * group_,
-        "Convolution op: input channels does not match: # of input channels ",
-        X.get_dim(1),
-        " is not equal to kernel channels * group:",
-        filter.get_dim(1 + grouped),
-        "*",
-        group_);
+    // CAFFE_ENFORCE(4 == X.ndims());
+    // CAFFE_ENFORCE(4 == filter.ndims() || (grouped && (group_ > 1)));
+    // CAFFE_ENFORCE_EQ(filter.get_dim(2 + grouped), kernel_h());
+    // CAFFE_ENFORCE_EQ(filter.get_dim(3 + grouped), kernel_w());
+    // CAFFE_ENFORCE(
+    //     X.get_dim(1) == filter.get_dim(1 + grouped) * group_,
+    //     "Convolution op: input channels does not match: # of input channels ",
+    //     X.get_dim(1),
+    //     " is not equal to kernel channels * group:",
+    //     filter.get_dim(1 + grouped),
+    //     "*",
+    //     group_);
 
-    bool input_changed = (cached_X_descriptor_ != X.get_descriptor());
-    if (input_changed) {
-      op_key_.clear();
-      cached_X_descriptor_ = X.dup_descriptor();
-    }
+    // bool input_changed = (cached_X_descriptor_ != X.get_desc());
+    // if (input_changed) {
+    //   cached_X_descriptor_ = X.dup_descriptor();
+    // }
 
-    bool weights_changed = (cached_weights_descriptor_ != filter.get_descriptor());
-    if (!training_mode_ && weights_changed) {
-      op_key_.clear();
-      cached_weights_descriptor_ = filter.dup_descriptor();
-      auto filter_in = filter.as_weights();
-      filter_in.make_group(group_);
+    // bool weights_changed = (cached_weights_descriptor_ != filter.get_desc());
+    // if (!training_mode_ && weights_changed) {
+    //   cached_weights_descriptor_ = filter.dup_descriptor();
+    //   auto filter_in = filter.as_weights();
+    //   filter_in.make_group(group_);
 
-      auto expected_descriptor =
-          ideep::convolution_forward::expected_weights_descriptor(
-              filter_in.get_dims(),
-              idtype::f32,
-              stride_,
-              pad_tl(),
-              pad_br(),
-              dilation_,
-              group_,
-              algo_,
-              pk_,
-              idtype::f32,
-              X.get_dims());
-      if (filter_in.get_descriptor() != expected_descriptor) {
-        filter_.init(expected_descriptor);
-        filter_.feed_from(filter_in);
-      } else {
-        filter_ = filter_in;
-      }
-    }
+    //   auto expected_descriptor =
+    //       ideep::convolution_forward::expected_weights_descriptor(
+    //           filter_in.get_dims(),
+    //           idtype::f32,
+    //           stride_,
+    //           pad_tl(),
+    //           pad_br(),
+    //           dilation_,
+    //           group_,
+    //           algo_,
+    //           pk_,
+    //           idtype::f32,
+    //           X.get_dims());
+    //   if (filter_in.get_desc() != expected_descriptor) {
+    //     filter_.init(expected_descriptor);
+    //     filter_.feed_from(filter_in);
+    //   } else {
+    //     filter_ = filter_in;
+    //   }
+    // }
 
-    if (InputSize() > last_input_) {
-      ideep::convolution_forward::compute(
-          op_key_,
-          X,
-          training_mode_ ? filter : filter_,
-          Input(BIAS_OR_INPUT_S),
-          Y_dims_conv,
-          *Y,
-          stride_,
-          dilation_,
-          pad_tl(),
-          pad_br(),
-          group_,
-          dummy_scale_,
-          dummy_scale_,
-          dummy_scale_,
-          attr_,
-          algo_,
-          pk_);
-    } else {
-      ideep::convolution_forward::compute(
-          op_key_,
-          X,
-          training_mode_ ? filter : filter_,
-          Y_dims_conv,
-          *Y,
-          stride_,
-          dilation_,
-          pad_tl(),
-          pad_br(),
-          group_,
-          dummy_scale_,
-          dummy_scale_,
-          dummy_scale_,
-          attr_,
-          algo_,
-          pk_);
-    }
+    // if (InputSize() > last_input_) {
+    //   ideep::convolution_forward::compute(
+    //       X,
+    //       training_mode_ ? filter : filter_,
+    //       Input(BIAS_OR_INPUT_S),
+    //       Y_dims_conv,
+    //       *Y,
+    //       stride_,
+    //       dilation_,
+    //       pad_tl(),
+    //       pad_br(),
+    //       group_,
+    //       dummy_scale_,
+    //       dummy_scale_,
+    //       dummy_scale_,
+    //       attr_,
+    //       algo_,
+    //       pk_);
+    // } else {
+    //   ideep::convolution_forward::compute(
+    //       X,
+    //       training_mode_ ? filter : filter_,
+    //       Y_dims_conv,
+    //       *Y,
+    //       stride_,
+    //       dilation_,
+    //       pad_tl(),
+    //       pad_br(),
+    //       group_,
+    //       dummy_scale_,
+    //       dummy_scale_,
+    //       dummy_scale_,
+    //       attr_,
+    //       algo_,
+    //       pk_);
+    // }
 
-    if (fusion_type_ == FUSION_CONV_SUM
-        && fusion_type_ == FUSION_CONV_SUM_RELU) {
-      CAFFE_ENFORCE_EQ(Y,  &(Input(InputSize() - 1)),
-          "Convolution fusion op: InPlace is enforced for sum fusion.");
-    }
+    // if (fusion_type_ == FUSION_CONV_SUM
+    //     && fusion_type_ == FUSION_CONV_SUM_RELU) {
+    //   CAFFE_ENFORCE_EQ(Y,  &(Input(InputSize() - 1)),
+    //       "Convolution fusion op: InPlace is enforced for sum fusion.");
+    // }
 
     return true;
   }
@@ -140,13 +136,12 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
   iprop pk_;
   ialgo algo_;
   iattr attr_;
-  ikey op_key_;
   int last_input_;
   bool training_mode_;
   FusionType fusion_type_;
   itensor filter_;
   iscale dummy_scale_;
-  itensor::descriptor cached_X_descriptor_, cached_weights_descriptor_;
+  itensor::desc cached_X_descriptor_, cached_weights_descriptor_;
 
   INPUT_TAGS(INPUT_X, FILTER, BIAS_OR_INPUT_S, INPUT_S);
   OUTPUT_TAGS(OUTPUT);
@@ -159,31 +154,31 @@ class IDEEPConvFusionOp final : public IDEEPConvOp {
 
   IDEEPConvFusionOp(const OperatorDef& operator_def, Workspace* ws)
       : IDEEPConvOp(operator_def, ws) {
-    CAFFE_ENFORCE(OperatorBase::HasArgument("fusion_type"),
-          "You should specify the fusion type");
-    fusion_type_ = static_cast<FusionType>(
-        OperatorBase::GetSingleArgument<int>("fusion_type", FUSION_UNKNOWN));
-    OPERATOR_NEEDS_FEATURE(
-        fusion_type_ > FUSION_UNKNOWN && fusion_type_ < FUSION_MAX,
-        "Undefined Conv fusion type.",
-        fusion_type_);
+    // CAFFE_ENFORCE(OperatorBase::HasArgument("fusion_type"),
+    //       "You should specify the fusion type");
+    // fusion_type_ = static_cast<FusionType>(
+    //     OperatorBase::GetSingleArgument<int>("fusion_type", FUSION_UNKNOWN));
+    // OPERATOR_NEEDS_FEATURE(
+    //     fusion_type_ > FUSION_UNKNOWN && fusion_type_ < FUSION_MAX,
+    //     "Undefined Conv fusion type.",
+    //     fusion_type_);
 
-    switch (fusion_type_) {
-      case FUSION_CONV_RELU:
-        attr_ = iattr::fuse_relu();
-        last_input_ = BIAS_OR_INPUT_S;
-        break;
-      case FUSION_CONV_SUM:
-        attr_ = iattr::fuse_sum();
-        last_input_ = INPUT_S;
-        break;
-      case FUSION_CONV_SUM_RELU:
-        attr_ = iattr::residual();
-        last_input_ = INPUT_S;
-        break;
-      default:
-        CAFFE_THROW("Unsupported conv fusion type!");
-    }
+    // switch (fusion_type_) {
+    //   case FUSION_CONV_RELU:
+    //     attr_ = iattr::fuse_relu();
+    //     last_input_ = BIAS_OR_INPUT_S;
+    //     break;
+    //   case FUSION_CONV_SUM:
+    //     attr_ = iattr::fuse_sum();
+    //     last_input_ = INPUT_S;
+    //     break;
+    //   case FUSION_CONV_SUM_RELU:
+    //     attr_ = iattr::residual();
+    //     last_input_ = INPUT_S;
+    //     break;
+    //   default:
+    //     CAFFE_THROW("Unsupported conv fusion type!");
+    // }
   }
   virtual ~IDEEPConvFusionOp() {}
 };
@@ -278,50 +273,50 @@ class IDEEPConvGradientOp final : public IDEEPConvPoolOpBase {
   virtual ~IDEEPConvGradientOp() {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    const auto& X = Input(INPUT);
-    const auto& filter = Input(FILTER);
-    const auto& dY = Input(OUTPUT_GRAD);
-    auto* dfilter = Output(FILTER_GRAD);
+    // const auto& X = Input(INPUT);
+    // const auto& filter = Input(FILTER);
+    // const auto& dY = Input(OUTPUT_GRAD);
+    // auto* dfilter = Output(FILTER_GRAD);
 
-    if (no_bias_) {
-      ideep::convolution_backward_weights::compute(
-          X,
-          dY,
-          filter.get_dims(),
-          *dfilter,
-          stride_,
-          dilation_,
-          pad_tl(),
-          pad_br(),
-          group_);
-    } else {
-      auto* dbias = Output(BIAS_OR_INPUT_GRAD);
-      ideep::convolution_backward_weights::compute(
-          X,
-          dY,
-          filter.get_dims(),
-          *dfilter,
-          *dbias,
-          stride_,
-          dilation_,
-          pad_tl(),
-          pad_br(),
-          group_);
-    }
+    // if (no_bias_) {
+    //   ideep::convolution_backward_weights::compute(
+    //       X,
+    //       dY,
+    //       filter.get_dims(),
+    //       *dfilter,
+    //       stride_,
+    //       dilation_,
+    //       pad_tl(),
+    //       pad_br(),
+    //       group_);
+    // } else {
+    //   auto* dbias = Output(BIAS_OR_INPUT_GRAD);
+    //   ideep::convolution_backward_weights::compute(
+    //       X,
+    //       dY,
+    //       filter.get_dims(),
+    //       *dfilter,
+    //       *dbias,
+    //       stride_,
+    //       dilation_,
+    //       pad_tl(),
+    //       pad_br(),
+    //       group_);
+    // }
 
-    if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
-      auto* dX = Output(no_bias_ ? BIAS_OR_INPUT_GRAD : INPUT_GRAD);
-      ideep::convolution_backward_data::compute(
-          dY,
-          filter,
-          X.get_dims(),
-          *dX,
-          stride_,
-          dilation_,
-          pad_tl(),
-          pad_br(),
-          group_);
-    }
+    // if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+    //   auto* dX = Output(no_bias_ ? BIAS_OR_INPUT_GRAD : INPUT_GRAD);
+    //   ideep::convolution_backward_data::compute(
+    //       dY,
+    //       filter,
+    //       X.get_dims(),
+    //       *dX,
+    //       stride_,
+    //       dilation_,
+    //       pad_tl(),
+    //       pad_br(),
+    //       group_);
+    // }
 
     return true;
   }

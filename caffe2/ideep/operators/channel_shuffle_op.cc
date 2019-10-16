@@ -13,10 +13,10 @@ class ChannelShuffleOp final : public IDEEPConvPoolOpBase {
       : IDEEPConvPoolOpBase(operator_def, ws) {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    const auto& X = Input(INPUT);
-    auto* Y = Output(OUTPUT);
+    // const auto& X = Input(INPUT);
+    // auto* Y = Output(OUTPUT);
 
-    ideep::channel_shuffle_forward::compute(X, *Y, group_);
+    // ideep::channel_shuffle_forward::compute(X, *Y, group_);
 
     return true;
   }
@@ -35,10 +35,10 @@ class ChannelShuffleGradientOp final : public IDEEPConvPoolOpBase {
       : IDEEPConvPoolOpBase(operator_def, ws) {}
 
   bool RunOnDeviceWithOrderNCHW() override {
-    const auto& dY = Input(OUTPUT_GRAD);
-    auto* dX = Output(INPUT_GRAD);
+    // const auto& dY = Input(OUTPUT_GRAD);
+    // auto* dX = Output(INPUT_GRAD);
 
-    ideep::channel_shuffle_backward::compute(dY, *dX, group_);
+    // ideep::channel_shuffle_backward::compute(dY, *dX, group_);
 
     return true;
   }

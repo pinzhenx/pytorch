@@ -17,56 +17,53 @@ class IDEEPFullyConnectedOp final : public IDEEPOperator {
   ~IDEEPFullyConnectedOp() override {}
 
   bool RunOnDevice() override {
-    const auto& X = Input(INPUT);
-    const auto& filter = Input(FILTER);
-    auto* Y = Output(OUTPUT);
+    // const auto& X = Input(INPUT);
+    // const auto& filter = Input(FILTER);
+    // auto* Y = Output(OUTPUT);
 
-    itensor X_in = X;
-    auto X_dims = CanonicalDims(X_in.get_dims(), axis_);
-    if (X_in.get_dims() != X_dims) {
-      X_in.reshape(X_dims);
-    }
+    // itensor X_in = X;
+    // auto X_dims = CanonicalDims(X_in.get_dims(), axis_);
+    // if (X_in.get_dims() != X_dims) {
+    //   X_in.reshape(X_dims);
+    // }
 
-    if (training_mode_) {
-      op_key_.clear();
-      filter_ = filter;
-      auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
-      if (filter_.get_dims() != filter_dims) {
-        filter_.reshape(filter_dims);
-      }
+    // if (training_mode_) {
+    //   filter_ = filter;
+    //   auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
+    //   if (filter_.get_dims() != filter_dims) {
+    //     filter_.reshape(filter_dims);
+    //   }
 
-      if (InputSize() > BIAS) {
-        bias_ = Input(BIAS);
-      }
-    } else {
-      if (cached_X_descriptor_ != X.get_descriptor()) {
-        op_key_.clear();
-        cached_X_descriptor_ = X.dup_descriptor();
-      }
+    //   if (InputSize() > BIAS) {
+    //     bias_ = Input(BIAS);
+    //   }
+    // } else {
+    //   if (cached_X_descriptor_ != X.get_desc()) {
+    //     cached_X_descriptor_ = X.dup_descriptor();
+    //   }
 
-      if (cached_weights_descriptor_ != filter.get_descriptor()) {
-        op_key_.clear();
-        cached_weights_descriptor_ = filter.dup_descriptor();
+    //   if (cached_weights_descriptor_ != filter.get_desc()) {
+    //     cached_weights_descriptor_ = filter.dup_descriptor();
 
-        filter_ = filter.has_scale() ? filter.to_public() : filter;
-        auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
-        if (filter_.get_dims() != filter_dims) {
-          filter_.reshape(filter_dims);
-        }
+    //     filter_ = filter.has_scale() ? filter.to_public() : filter;
+    //     auto filter_dims = CanonicalDims(filter_.get_dims(), axis_w_);
+    //     if (filter_.get_dims() != filter_dims) {
+    //       filter_.reshape(filter_dims);
+    //     }
 
-        if (InputSize() > BIAS) {
-          const auto& bias = Input(BIAS);
-          bias_ = bias.has_scale() ? bias.to_public() : bias;
-        }
-      }
-    }
+    //     if (InputSize() > BIAS) {
+    //       const auto& bias = Input(BIAS);
+    //       bias_ = bias.has_scale() ? bias.to_public() : bias;
+    //     }
+    //   }
+    // }
 
-    if (InputSize() > BIAS) {
-      ideep::inner_product_forward::compute(
-          op_key_, X_in, filter_, bias_, *Y);
-    } else {
-      ideep::inner_product_forward::compute(op_key_, X_in, filter_, *Y);
-    }
+    // if (InputSize() > BIAS) {
+    //   ideep::inner_product_forward::compute(
+    //       X_in, filter_, bias_, *Y);
+    // } else {
+    //   ideep::inner_product_forward::compute(X_in, filter_, *Y);
+    // }
 
     return true;
   }
@@ -76,9 +73,8 @@ class IDEEPFullyConnectedOp final : public IDEEPOperator {
   size_t axis_w_{1};
   bool training_mode_;
 
-  ikey op_key_;
   itensor filter_, bias_;
-  itensor::descriptor cached_X_descriptor_, cached_weights_descriptor_;
+  itensor::desc cached_X_descriptor_, cached_weights_descriptor_;
 
   INPUT_TAGS(INPUT, FILTER, BIAS);
   OUTPUT_TAGS(OUTPUT);

@@ -13,7 +13,7 @@ class IDEEPInt8GivenTensorFillOp final : public IDEEPOperator {
       : IDEEPOperator(operator_def, ws),
         zero_point_(
             this->template GetSingleArgument<int32_t>("Y_zero_point", 0)),
-        shape_(this->template GetRepeatedArgument<int>("shape")) {
+        shape_(this->template GetRepeatedArgument<itensor::dim>("shape")) {
     CAFFE_ENFORCE(shape_.size() == 4 || shape_.size() == 2 || shape_.size() == 1);
     CAFFE_ENFORCE(zero_point_ == 0 || zero_point_ == 128,
         "Not support zero point");
@@ -48,14 +48,14 @@ class IDEEPInt8GivenTensorFillOp final : public IDEEPOperator {
     auto* output = Output(OUTPUT);
     auto data_type = zero_point_ == 0 ? idtype::u8 : idtype::s8;
 
-    output->init({shape_, data_type});
+    output->reinit(shape_, data_type);
     DCHECK_EQ(output->get_nelems(), values_.numel())
         << "output size: " << output->get_nelems()
         << " given size: " << values_.numel();
 
     if (output->get_nelems() > 0) {
       itensor temp_ten;
-      temp_ten.init({shape_, data_type, fmt_});
+      temp_ten.reinit(shape_, data_type, fmt_);
       auto* data_u8 = static_cast<uint8_t*>(temp_ten.get_data_handle());
       const auto* values_data = values_.template data<uint8_t>();
       context_.template CopySameDevice<uint8_t>(
@@ -95,7 +95,7 @@ class IDEEPInt8GivenIntTensorFillOp final : public IDEEPOperator {
       : IDEEPOperator(operator_def, ws),
         zero_point_(
             this->template GetSingleArgument<int32_t>("Y_zero_point", 0)),
-        shape_(this->template GetRepeatedArgument<int>("shape")) {
+        shape_(this->template GetRepeatedArgument<itensor::dim>("shape")) {
     CAFFE_ENFORCE(zero_point_ == 0, "Not support zero point");
     if (HasArgument("Y_scales")) {
       scales_ = this->template GetRepeatedArgument<float>("Y_scales");
@@ -114,7 +114,7 @@ class IDEEPInt8GivenIntTensorFillOp final : public IDEEPOperator {
 
   bool RunOnDevice() override {
     auto* output = Output(OUTPUT);
-    output->init({shape_, idtype::s32});
+    output->reinit(ideep::tensor::desc {shape_, idtype::s32});
     output->set_scale(ConvertScales(scales_));
     DCHECK_EQ(output->get_nelems(), values_.numel())
         << "output size: " << output->get_nelems()
