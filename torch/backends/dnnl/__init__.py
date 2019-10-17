@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from torch.backends import ContextProp, PropModule, __allow_nonbracketed_mutation
 
 def is_available():
-    r"""Returns whether PyTorch is built with MKL-DNN support."""
+    r"""Returns whether PyTorch is built with DNNL support."""
     return torch._C.has_dnnl
 
 def set_flags(_enabled):

@@ -16,7 +16,8 @@ Tensor dnnl_reshape(const Tensor& self, IntArrayRef size) {
   AT_ERROR("dnnl_reshape: ATen not compiled with DNNL support");
 }
 
-Tensor dnnl_clone(const Tensor& self) {
+Tensor dnnl_clone(const Tensor& self,
+                  c10::optional<c10::MemoryFormat> optional_memory_format) {
   AT_ERROR("dnnl_clone: ATen not compiled with DNNL support");
 }
 
@@ -53,7 +54,12 @@ Tensor dnnl_reshape(const Tensor& self, IntArrayRef size) {
   return new_with_itensor_dnnl(std::move(y), self.options());
 }
 
-Tensor dnnl_clone(const Tensor& self) {
+Tensor dnnl_clone(const Tensor& self,
+                  c10::optional<c10::MemoryFormat> optional_memory_format) {
+  TORCH_CHECK(
+      !optional_memory_format.has_value(),
+      "unsupported memory format option ",
+      optional_memory_format.value());
   ideep::tensor dst;
   ideep::direct_copy::compute(itensor_from_dnnl(self), dst);
   return new_with_itensor_dnnl(std::move(dst), self.options());

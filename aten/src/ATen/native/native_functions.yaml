@@ -296,7 +296,7 @@
     CUDA: add_
     SparseCPU: add_sparse_
     SparseCUDA: add_sparse_
-    DnnlCPU: dnn;_add_
+    DnnlCPU: dnnl_add_
   supports_named_tensor: True
 
 - func: add.out(Tensor self, Tensor other, *, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)
@@ -305,7 +305,7 @@
     CUDA: add_out
     SparseCPU: add_out_sparse_cpu
     SparseCUDA: add_out_sparse_cuda
-    DnnCPU: dnnl_add_out
+    DnnlCPU: dnnl_add_out
   supports_named_tensor: True
 
 # For C++ only, until we have conversion from C++ numbers to Tensor

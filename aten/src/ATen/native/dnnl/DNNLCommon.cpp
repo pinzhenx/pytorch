@@ -44,9 +44,9 @@ Tensor new_with_itensor_dnnl(ideep::tensor&& it, const TensorOptions& options) {
   auto dims = it.get_dims();
   IDeepTensorWrapperPtr handle =
       c10::make_intrusive<IDeepTensorWrapper>(std::move(it));
-  return detail::make_tensor<DNNLTensorImpl>(TensorTypeId::DnnlCPUTensorId,
-                                             options.dtype(), options.device(),
-                                             handle, dims);
+  return detail::make_tensor<DNNLTensorImpl>(
+      TensorTypeSet(TensorTypeId::DnnlCPUTensorId), options.dtype(),
+      options.device(), handle, dims);
 }
 
 ideep::tensor& itensor_from_dnnl(const DNNLTensor& dnnl_tensor) {
