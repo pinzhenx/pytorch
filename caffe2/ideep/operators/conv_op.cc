@@ -36,7 +36,7 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
     const auto& X = Input(INPUT_X);
     const auto& filter = Input(FILTER);
     auto* Y = Output(OUTPUT);
-    auto grouped = filter.is_grouped() ? 1 : 0;
+    auto grouped = false;
     auto Y_dims_conv = CalcOutputDims(
         X,
         grouped ? (filter.get_dim(0) * filter.get_dim(1)) : filter.get_dim(0));
@@ -56,25 +56,22 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
 
     bool input_changed = (cached_X_descriptor_ != X.get_descriptor());
     if (input_changed) {
-      op_key_.clear();
       cached_X_descriptor_ = X.dup_descriptor();
     }
 
     bool weights_changed = (cached_weights_descriptor_ != filter.get_descriptor());
     if (!training_mode_ && weights_changed) {
-      op_key_.clear();
       cached_weights_descriptor_ = filter.dup_descriptor();
-      auto filter_in = filter.as_weights();
-      filter_in.make_group(group_);
+      auto filter_in = filter;
 
       auto expected_descriptor =
-          ideep::convolution_forward::expected_weights_descriptor(
+          ideep::convolution_forward::expected_weights_desc(
               filter_in.get_dims(),
               idtype::f32,
-              stride_,
+              {stride_.begin(), stride_.end()},
               pad_tl(),
               pad_br(),
-              dilation_,
+              {dilation_.begin(), dilation_.end()},
               group_,
               algo_,
               pk_,
@@ -90,14 +87,13 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
 
     if (InputSize() > last_input_) {
       ideep::convolution_forward::compute(
-          op_key_,
           X,
           training_mode_ ? filter : filter_,
           Input(BIAS_OR_INPUT_S),
           Y_dims_conv,
           *Y,
-          stride_,
-          dilation_,
+          {stride_.begin(), stride_.end()},
+          {dilation_.begin(), dilation_.end()},
           pad_tl(),
           pad_br(),
           group_,
@@ -109,13 +105,12 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
           pk_);
     } else {
       ideep::convolution_forward::compute(
-          op_key_,
           X,
           training_mode_ ? filter : filter_,
           Y_dims_conv,
           *Y,
-          stride_,
-          dilation_,
+          {stride_.begin(), stride_.end()},
+          {dilation_.begin(), dilation_.end()},
           pad_tl(),
           pad_br(),
           group_,
@@ -140,7 +135,6 @@ class IDEEPConvOp : public IDEEPConvPoolOpBase {
   iprop pk_;
   ialgo algo_;
   iattr attr_;
-  ikey op_key_;
   int last_input_;
   bool training_mode_;
   FusionType fusion_type_;
@@ -289,8 +283,8 @@ class IDEEPConvGradientOp final : public IDEEPConvPoolOpBase {
           dY,
           filter.get_dims(),
           *dfilter,
-          stride_,
-          dilation_,
+          {stride_.begin(), stride_.end()},
+          {dilation_.begin(), dilation_.end()},
           pad_tl(),
           pad_br(),
           group_);
@@ -302,8 +296,8 @@ class IDEEPConvGradientOp final : public IDEEPConvPoolOpBase {
           filter.get_dims(),
           *dfilter,
           *dbias,
-          stride_,
-          dilation_,
+          {stride_.begin(), stride_.end()},
+          {dilation_.begin(), dilation_.end()},
           pad_tl(),
           pad_br(),
           group_);
@@ -316,8 +310,8 @@ class IDEEPConvGradientOp final : public IDEEPConvPoolOpBase {
           filter,
           X.get_dims(),
           *dX,
-          stride_,
-          dilation_,
+          {stride_.begin(), stride_.end()},
+          {dilation_.begin(), dilation_.end()},
           pad_tl(),
           pad_br(),
           group_);

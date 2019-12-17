@@ -13,7 +13,7 @@ class IDEEPInt8GivenTensorFillOp final : public IDEEPOperator {
       : IDEEPOperator(operator_def, ws),
         zero_point_(
             this->template GetSingleArgument<int32_t>("Y_zero_point", 0)),
-        shape_(this->template GetRepeatedArgument<int>("shape")) {
+        shape_(this->template GetRepeatedArgument<itensor::dim>("shape")) {
     CAFFE_ENFORCE(shape_.size() == 4 || shape_.size() == 2 || shape_.size() == 1);
     CAFFE_ENFORCE(zero_point_ == 0 || zero_point_ == 128,
         "Not support zero point");
@@ -95,7 +95,7 @@ class IDEEPInt8GivenIntTensorFillOp final : public IDEEPOperator {
       : IDEEPOperator(operator_def, ws),
         zero_point_(
             this->template GetSingleArgument<int32_t>("Y_zero_point", 0)),
-        shape_(this->template GetRepeatedArgument<int>("shape")) {
+        shape_(this->template GetRepeatedArgument<itensor::dim>("shape")) {
     CAFFE_ENFORCE(zero_point_ == 0, "Not support zero point");
     if (HasArgument("Y_scales")) {
       scales_ = this->template GetRepeatedArgument<float>("Y_scales");
