@@ -19,6 +19,7 @@ class IDEEPTransposeOp final : public IDEEPOperator {
     auto* Y = Output(OUTPUT);
 
     Y->transpose_from(X, axes_);
+    Y->to_default_format();
 
     return true;
   }
