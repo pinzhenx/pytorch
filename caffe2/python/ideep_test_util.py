@@ -16,6 +16,7 @@ import hypothesis.strategies as st
 from caffe2.proto import caffe2_pb2
 from caffe2.python import workspace
 from caffe2.python import hypothesis_test_util as hu
+import hypothesis
 
 cpu_do = hu.cpu_do
 ideep_do = caffe2_pb2.DeviceOption(device_type=caffe2_pb2.IDEEP)
@@ -29,6 +30,11 @@ def device_checker_device_options():
 def gradient_checker_device_option():
     return st.sampled_from(device_options)
 
+def no_deadline(fn):
+    try:
+        return hypothesis.settings(deadline=None)(fn)
+    except hypothesis.errors.InvalidArgument:
+        return
 
 gcs = dict(
     gc=gradient_checker_device_option(),

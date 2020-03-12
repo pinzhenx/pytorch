@@ -16,6 +16,7 @@ from caffe2.python import core, workspace
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class OrderSwitchTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(n=st.integers(1, 128),
            c=st.integers(1, 64),
            h=st.integers(1, 128),
@@ -31,6 +32,7 @@ class OrderSwitchTest(hu.HypothesisTestCase):
 
         self.assertDeviceChecks(dc, op, [X], [0])
 
+    @mu.no_deadline
     @given(n=st.integers(1, 128),
            c=st.integers(1, 64),
            h=st.integers(1, 128),

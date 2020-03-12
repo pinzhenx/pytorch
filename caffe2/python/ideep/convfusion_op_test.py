@@ -18,6 +18,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class ConvFusionTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -117,6 +118,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
 
         workspace.SwitchWorkspace(old_ws_name)
 
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -428,6 +430,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
             print(np.max(np.abs(S2 - S0)))
             self.assertTrue(False)
 
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -580,6 +583,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
 
         workspace.SwitchWorkspace(old_ws_name)
 
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -689,6 +693,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
 
         workspace.SwitchWorkspace(old_ws_name)
 
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -777,6 +782,7 @@ class ConvFusionTest(hu.HypothesisTestCase):
 
         workspace.SwitchWorkspace(old_ws_name)
 
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),

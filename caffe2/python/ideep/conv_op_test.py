@@ -17,6 +17,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class ConvTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),
@@ -55,6 +56,7 @@ class ConvTest(hu.HypothesisTestCase):
         if training_mode:
             for i in range(len(inputs)):
                 self.assertGradientChecks(gc, op, inputs, i, [0], threshold=0.01)
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            size=st.integers(8, 10),
@@ -94,6 +96,7 @@ class ConvTest(hu.HypothesisTestCase):
             for i in range(len(inputs)):
                 self.assertGradientChecks(gc, op, inputs, i, [0], threshold=0.01)
 
+    @mu.no_deadline
     @given(batch_size=st.integers(1, 3), **mu.gcs)
     def test_depthwise_convolution(self, batch_size, gc, dc):
         op = core.CreateOperator(
@@ -158,7 +161,8 @@ class ConvTest(hu.HypothesisTestCase):
             print(np.max(np.abs(Y2 - Y0)))
             self.assertTrue(False)
 
-    @unittest.skipIf(sys.version_info.major > 2, "broken in python 3")
+    # @unittest.skipIf(sys.version_info.major > 2, "broken in python 3")
+    @mu.no_deadline
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(3, 5),

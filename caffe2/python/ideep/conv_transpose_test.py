@@ -14,6 +14,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class ConvTransposeTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(stride=st.integers(1, 2),
            pad=st.integers(0, 3),
            kernel=st.integers(1, 5),
@@ -26,7 +27,6 @@ class ConvTransposeTest(hu.HypothesisTestCase):
            training_mode=st.booleans(),
            compute_dX=st.booleans(),
            **mu.gcs)
-    @settings(max_examples=2, timeout=100)
     def test_convolution_transpose_gradients(self, stride, pad, kernel, adj,
                                              size, input_channels,
                                              output_channels, batch_size,

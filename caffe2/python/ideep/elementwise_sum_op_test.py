@@ -15,6 +15,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class ElementwiseSumTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(size=st.integers(7, 9),
            input_channels=st.integers(1, 3),
            batch_size=st.integers(1, 3),
@@ -38,7 +39,7 @@ class ElementwiseSumTest(hu.HypothesisTestCase):
             np.float32) for _ in range(inputs)]
         self.assertDeviceChecks(dc, op, Xs, [0])
 
-
+    @mu.no_deadline
     @given(size=st.integers(7, 9),
            input_channels=st.integers(1, 3),
            batch_size=st.integers(1, 3),
@@ -78,7 +79,7 @@ class ElementwiseSumTest(hu.HypothesisTestCase):
             print(np.max(np.abs(Y - sum_val)))
             self.assertTrue(False)
 
-
+    @mu.no_deadline
     @given(size=st.integers(7, 9),
            input_channels=st.integers(1, 3),
            batch_size=st.integers(1, 3),

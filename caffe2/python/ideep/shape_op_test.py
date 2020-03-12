@@ -15,6 +15,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class ShapeTest(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(n=st.integers(1, 128),
            c=st.integers(1, 128),
            h=st.integers(1, 128),
@@ -47,6 +48,7 @@ class ShapeTest(hu.HypothesisTestCase):
             print(np.max(np.abs(Y1 - Y0)))
             self.assertTrue(False)
 
+    @mu.no_deadline
     @given(n=st.integers(1, 128),
            c=st.integers(1, 128),
            h=st.integers(1, 128),

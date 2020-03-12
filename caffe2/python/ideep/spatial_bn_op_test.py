@@ -15,6 +15,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class TestSpatialBN(hu.HypothesisTestCase):
+    @mu.no_deadline
     @given(size=st.integers(7, 10),
            input_channels=st.integers(7, 10),
            batch_size=st.integers(1, 3),
@@ -56,6 +57,7 @@ class TestSpatialBN(hu.HypothesisTestCase):
 
         self.assertDeviceChecks(dc, op, [X, scale, bias, mean, var], [0])
 
+    @mu.no_deadline
     @given(size=st.integers(7, 10),
            input_channels=st.integers(7, 10),
            batch_size=st.integers(1, 3),
@@ -94,6 +96,7 @@ class TestSpatialBN(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X, scale, bias, running_mean, running_var],
             [0, 1, 2, 3])
 
+    @mu.no_deadline
     @given(size=st.integers(7, 10),
            input_channels=st.integers(1, 10),
            batch_size=st.integers(1, 3),

@@ -16,7 +16,7 @@ import caffe2.python.ideep_test_util as mu
 
 @unittest.skipIf(not workspace.C.use_mkldnn, "No MKLDNN support.")
 class DropoutTest(hu.HypothesisTestCase):
-
+    @mu.no_deadline
     @given(X=hu.tensor(),
            in_place=st.booleans(),
            ratio=st.floats(0, 0.999),
@@ -37,6 +37,7 @@ class DropoutTest(hu.HypothesisTestCase):
             # The 'mask' output may be uninitialized
             outputs_to_check=[0])
 
+    @mu.no_deadline
     @given(X=hu.tensor(),
            in_place=st.booleans(),
            output_mask=st.booleans(),
