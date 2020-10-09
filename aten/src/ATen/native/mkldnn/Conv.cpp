@@ -51,6 +51,37 @@ inline ideep::tensor get_mkldnn_tensor(const at::Tensor& tensor) {
     return at::native::itensor_view_from_dense(tensor);
   }
 }
+
+bool mkldnn_conv_use_noblock(
+    const at::Tensor& input,
+    const at::Tensor& weight,
+    at::IntArrayRef stride,
+    int64_t groups) {
+  if (input.is_mkldnn())
+    return false;
+
+  if (groups != 1)
+    return false;
+
+  auto product = [](at::IntArrayRef a) {
+    return std::accumulate(a.begin(), a.end(), 1, std::multiplies<size_t>());
+  };
+  auto bs = input.size(0);
+  auto ic = input.size(1);
+  auto oc = weight.size(0);
+  auto k = product(weight.sizes().slice(2));
+  auto sp = product(input.sizes().slice(2));
+
+  bool pointwise = k == 1;
+  if (pointwise)
+    return true;
+
+  // TODO: batch size should be fine-tuned
+  auto im2col_cost = bs * ic * k * sp;
+  auto reorder_cost =
+      2 * oc * ic * k + bs * ic * k + 2 * bs * oc * sp / product(stride);
+  return im2col_cost < reorder_cost;
+}
 }
 
 namespace at { namespace native {
@@ -98,7 +129,7 @@ ideep::tensor _mkldnn_convolution(
   return y;
 }
 
-Tensor mkldnn_convolution(
+Tensor mkldnn_convolution_generic(
     const Tensor& input,
     const Tensor& weight,
     const Tensor& bias,
@@ -127,6 +158,42 @@ Tensor mkldnn_convolution(
   } else {
     return mkldnn_to_dense(
         new_with_itensor_mkldnn(std::move(mkldnn_output), input.options()));
+  }
+}
+
+Tensor mkldnn_convolution_noblock(
+    const Tensor& input, const Tensor& weight, const Tensor& bias,
+    IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation,
+    int64_t groups) {
+
+  auto output_sizes =
+      conv_output_size(input.sizes(), weight.sizes(), padding, stride, dilation);
+  auto result = at::empty(output_sizes, input.options());
+
+  auto y = get_mkldnn_tensor(result);
+  auto x = get_mkldnn_tensor(input);
+  auto w = get_mkldnn_tensor(weight);
+  if (bias.defined()) {
+    auto b = get_mkldnn_tensor(bias);
+    ideep::convolution_forward::compute</*plain=*/true>(
+        x, w, b, output_sizes, y,
+        stride.vec(), dilation.vec(), padding.vec(), padding.vec(), groups);
+  } else {
+    ideep::convolution_forward::compute</*plain=*/true>(
+        x, w, output_sizes, y,
+        stride.vec(), dilation.vec(), padding.vec(), padding.vec(), groups);
+  }
+  return result;
+}
+
+Tensor mkldnn_convolution(
+    const Tensor& input, const Tensor& weight, const Tensor& bias,
+    IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation,
+    int64_t groups) {
+  if (mkldnn_conv_use_noblock(input, weight, stride, groups)) {
+    return mkldnn_convolution_noblock(input, weight, bias, padding, stride, dilation, groups);
+  } else {
+    return mkldnn_convolution_generic(input, weight, bias, padding, stride, dilation, groups);
   }
 }
 
