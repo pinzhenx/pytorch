@@ -321,6 +321,7 @@ struct CanEmitInline {
         // will become invalid.
         v->node()->kind() != prim::TensorExprGroup &&
         v->node()->kind() != prim::CudaFusionGroup &&
+        v->node()->kind() != prim::LlgaFusionGroup &&
         v->node()->kind() != prim::FusionGroup &&
         v->node()->kind() != prim::BailOut && v->uses().size() == 1 &&
         v->node()->outputs().size() == 1;

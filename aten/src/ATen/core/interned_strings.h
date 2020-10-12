@@ -34,6 +34,7 @@ namespace c10 {
   _(prim, Expand) /* onnx */         \
   _(prim, FusionGroup)               \
   _(prim, CudaFusionGroup)           \
+  _(prim, LlgaFusionGroup)           \
   _(prim, FunctionalGraph)           \
   _(prim, DifferentiableGraph)       \
   _(prim, TensorExprGroup)           \
@@ -360,6 +361,7 @@ namespace c10 {
   _(attr, scope)                     \
   _(attr, keepdims)                  \
   _(attr, cache_id)                  \
+  _(attr, output_layouts)            \
   _(attr, new_axis)
 #else
 #define FORALL_NS_SYMBOLS(_) \

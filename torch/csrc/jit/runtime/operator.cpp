@@ -237,6 +237,7 @@ bool printerHasSpecialCaseFor(Symbol sym) {
       prim::FusionGroup, // optimization pass adds it
       prim::CudaFusionGroup, // optimization pass adds it
       prim::TensorExprGroup, // optimization pass adds it
+      prim::LlgaFusionGroup,
       prim::Load, // used in interpreter only
       prim::MMTreeReduce, // used as an optimization
       prim::MMBatchSide, // used as an optimization
@@ -271,6 +272,7 @@ bool aliasAnalysisHasSpecialCaseFor(Symbol symbol) {
       prim::Loop,
       prim::FusionGroup,
       prim::CudaFusionGroup,
+      prim::LlgaFusionGroup,
       prim::DifferentiableGraph,
       prim::TensorExprGroup,
       prim::FunctionalGraph,
