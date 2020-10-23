@@ -236,9 +236,7 @@ auto ConvParams::use_mkldnn(const at::Tensor& input, const at::Tensor& weight) c
   return (input.is_mkldnn()) || // input is mkldnn Tensor
     (input.options().backend() == at::Backend::CPU &&
      input.scalar_type() == kFloat && // only on CPU Float Tensors
-     !transposed && // or transposed tensors
-     (groups > 1 || weight.size(2) > 3 || input.size(0) > 1
-      || input.size(0)*input.size(1)*input.size(2)*input.size(3) > 20480)); // for some case, native is faster
+     !transposed); // for some case, native is faster
 #endif
   return false;
 }
