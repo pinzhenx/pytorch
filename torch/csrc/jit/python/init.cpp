@@ -5,6 +5,7 @@
 #include <torch/csrc/jit/backends/backend_init.h>
 #include <torch/csrc/jit/codegen/fuser/interface.h>
 #include <torch/csrc/jit/codegen/fuser/kernel_cache.h>
+#include <torch/csrc/jit/codegen/onednn/interface.h>
 #include <torch/csrc/jit/frontend/ir_emitter.h>
 #include <torch/csrc/jit/frontend/tracer.h>
 #include <torch/csrc/jit/ir/irparser.h>
@@ -496,6 +497,8 @@ void initJITBindings(PyObject* module) {
           })
       .def("_jit_set_nvfuser_enabled", &RegisterCudaFuseGraph::registerPass)
       .def("_jit_nvfuser_enabled", &RegisterCudaFuseGraph::isRegistered)
+      .def("_jit_set_llga_enabled", &RegisterLlgaFuseGraph::setEnabled)
+      .def("_jit_llga_enabled", &RegisterLlgaFuseGraph::isEnabled)
       .def(
           "_jit_set_profiling_mode",
           [](bool profiling_flag) {

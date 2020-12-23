@@ -569,6 +569,19 @@ if(NOT INTERN_BUILD_MOBILE OR NOT BUILD_CAFFE2_MOBILE)
     endif()
   endif()
 
+  if(MKLDNN_FOUND)
+    list(APPEND Caffe2_CPU_SRCS
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/graph_fuser.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/graph_helper.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/interface.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/kernel.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/defer_size_check.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/layout_propagation.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/prepare_binary.cpp
+      ${TORCH_SRC_DIR}/csrc/jit/codegen/onednn/runtime.cpp
+    )
+  endif()
+
   if(USE_ROCM)
     list(APPEND Caffe2_HIP_SRCS
       ${TORCH_SRC_DIR}/csrc/jit/codegen/fuser/cuda/fused_kernel.cpp
